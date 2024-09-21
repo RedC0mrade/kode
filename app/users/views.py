@@ -1,17 +1,15 @@
-from fastapi import HTTPException, status
-from sqlalchemy.ext.asyncio import async_scoped_session
+from fastapi import HTTPException, status, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from main import app
 from app.users.user_model_db import UserAlchemyModel
 from app.users import crud
 from app.users.schema import UserBase, UserCreate
-
-
-session = async_scoped_session()
+from app.db_core.engine import db_helper
 
 
 @app.get("/users", response_model=list[UserBase])
-async def get_users(session):
+async def get_users(session: AsyncSession = Depends(db_helper.scoped_session_dependency)):
     return await crud.get_users(session=session)
 
 
