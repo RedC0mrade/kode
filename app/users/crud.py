@@ -4,25 +4,33 @@ Read
 Update
 Delete
 """
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import select
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
-from user_model import User
+
+from app.users.user_model_db import UserAlchemyModel
+from app.users.schema import UserCreate
 
 
-async def get_users(session: AsyncSession) -> List[User]:
+async def get_users(session: AsyncSession) -> List[UserAlchemyModel]:
     """Get users list"""
-    stmt = select(User)
+    stmt = select(UserAlchemyModel)
     result: Result = await session.execute(stmt)
     users = result.scalars().all()
     return list(users)
 
 
-async def get_users(session: AsyncSession, user_id: int) -> User | None:
+async def get_user(session: AsyncSession, user_id: int) -> UserAlchemyModel | None:
     """Get User"""
-    stmt = select(User).where(User.id == user_id)
-    result: Result = await session.exxecut(stmt)
-    user = result.scalars()
-    return user
+    return await session.get(UserAlchemyModel, user_id)
+
+
+async def create_user(session: AsyncSession, user_in: UserCreate) -> UserAlchemyModel:
+    """Create User"""
+    new_user = UserAlchemyModel(**user_in.model_dump())
+
+    session.add(new_user)
+    await session.commit()
+    return new_user
