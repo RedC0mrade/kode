@@ -30,7 +30,6 @@ async def get_user(session: AsyncSession, user_id: int) -> UserAlchemyModel | No
 async def create_user(session: AsyncSession, user_in: UserCreate) -> UserAlchemyModel:
     """Create User"""
     new_user = UserAlchemyModel(**user_in.model_dump())
-
     session.add(new_user)
     await session.commit()
     return new_user
