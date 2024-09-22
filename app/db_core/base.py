@@ -14,14 +14,14 @@ class Base(DeclarativeBase):
     
     id: Mapped[int] = mapped_column(primary_key=True)
 
-class UserAlchemyModel(Base):
-    __tablename__ = "users"
+# class UserAlchemyModel(Base):
+#     __tablename__ = "users"
 
-    name: Mapped[str] = mapped_column(String(30))
-    fullname: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
-    password: Mapped[str] = mapped_column(String(50), nullable=False)
-    age: Mapped[int] = mapped_column(Integer())
+#     name: Mapped[str] = mapped_column(String(30))
+#     fullname: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+#     password: Mapped[str] = mapped_column(String(50), nullable=False)
+#     age: Mapped[int] = mapped_column(Integer())
 
-    def __repr__(self) -> str:
-        return (f"User(id={self.id!r}, name={self.name!r},", 
-                    f"fullname={self.fullname!r}, password={self.password!r})")
+#     def __repr__(self) -> str:
+#         return (f"User(id={self.id!r}, name={self.name!r},", 
+#                     f"fullname={self.fullname!r}, password={self.password!r})")

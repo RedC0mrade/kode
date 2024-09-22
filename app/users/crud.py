@@ -10,8 +10,8 @@ from sqlalchemy import select
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.users.user_model_db import UserAlchemyModel
-from app.users.schema import UserCreate
+from users.user_model_db import UserAlchemyModel
+from users.schema import UserCreate
 
 
 async def get_users(session: AsyncSession) -> List[UserAlchemyModel]:
@@ -33,3 +33,7 @@ async def create_user(session: AsyncSession, user_in: UserCreate) -> UserAlchemy
     session.add(new_user)
     await session.commit()
     return new_user
+
+
+async def delete_user(sessin: AsyncSession, user_id: int):
+    stmt = select()
