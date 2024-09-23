@@ -35,5 +35,8 @@ async def create_user(session: AsyncSession, user_in: UserCreate) -> UserAlchemy
     return new_user
 
 
-async def delete_user(sessin: AsyncSession, user_id: int):
-    stmt = select()
+async def delete_user(session: AsyncSession, user_id: int):
+    """Delete user"""
+    del_user = await session.get(UserAlchemyModel, user_id)
+    await session.delete(del_user)
+    await session.commit()

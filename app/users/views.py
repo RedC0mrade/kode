@@ -42,4 +42,11 @@ async def delete_user(
     user_id: int, 
     session: AsyncSession = Depends(db_helper.session_dependency)
     ):
-    return crud.delite_user(session=session, user_id=user_id)
+    await crud.delete_user(session=session, user_id=user_id)
+    # try:
+    #     return message
+    # except:
+    #     raise HTTPException(
+    #     status_code=status.HTTP_404_NOT_FOUND,
+    #     detail=f"He can't be delete. User with {user_id}, not found. "
+    #     )
