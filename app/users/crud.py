@@ -6,12 +6,13 @@ Delete
 """
 from typing import List, Optional
 
+from fastapi import Response
 from sqlalchemy import select
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from users.user_model_db import UserAlchemyModel
-from users.schema import UserCreate
+from users.schema import UserCreate, UserPatch, UserPut
 
 
 async def get_users(session: AsyncSession) -> List[UserAlchemyModel]:
@@ -34,6 +35,26 @@ async def create_user(session: AsyncSession, user_in: UserCreate) -> UserAlchemy
     await session.commit()
     return new_user
 
+
+async def put_user(session: AsyncSession, user_in: UserPut, user_id: int) -> UserAlchemyModel:
+    """Put User"""
+    user: UserAlchemyModel = await session.get(UserAlchemyModel, user_id)
+    new_values: dict = user_in.model_dump()
+    for name, attr in new_values.items():
+        setattr(user, name, attr)
+    await session.commit()
+    return user
+
+
+async def patch_user(session: AsyncSession, user_in: UserPatch, user_id: int, method):
+    """Patch User"""
+    user: UserAlchemyModel = await session.get(UserAlchemyModel, user_id)
+    new_values: dict = user_in.model_dump()
+    for name, attr in new_values.items():
+        setattr(user, name, attr)
+    await session.commit()
+    return user
+    
 
 async def delete_user(session: AsyncSession, user_id: int):
     """Delete user"""
