@@ -7,6 +7,7 @@ from db_core.base import Base
 
 
 class UserAlchemyModel(Base):
+    """Table for user model"""
     __tablename__ = "users"
 
     name: Mapped[str] = mapped_column(String(30))

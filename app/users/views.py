@@ -1,11 +1,11 @@
 from typing import Union
-from fastapi import APIRouter, HTTPException, Response, Request, status, Depends
+from fastapi import HTTPException, Response, Request, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from main import app
 from users.user_model_db import UserAlchemyModel
 from users import crud
-from users.schema import UserBase, UserCreate, UserPatch, UserPut
+from users.schema import User, UserBase, UserPatch
 from db_core.engine import db_helper
 
 
@@ -32,7 +32,7 @@ async def get_user(
 
 @app.post("/user", response_model=UserBase)
 async def create_user(
-    user_create: UserCreate, 
+    user_create: User, 
     session: AsyncSession = Depends(db_helper.session_dependency),
     ):
     return await crud.create_user(session=session, user_in=user_create)
@@ -47,8 +47,8 @@ async def put_patsh_user(
     session: AsyncSession = Depends(db_helper.session_dependency)
     ):
     if Request.method == "PUT":
-        return await crud.put_user(session=session, user_id=user_id, user_in=user_in[0])
-    return await crud.patch_user(session=session, user_id=user_id, user_in=user_in[1])
+        return await crud.put_user(session=session, user_id=user_id, user_in=user_in)
+    return await crud.patch_user(session=session, user_id=user_id, user_in=user_in)
 
 
 @app.delete("/user/{user_id}")

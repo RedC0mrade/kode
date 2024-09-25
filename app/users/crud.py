@@ -1,9 +1,3 @@
-"""
-Create
-Read
-Update
-Delete
-"""
 from typing import List, Optional
 
 from fastapi import Response
@@ -12,7 +6,7 @@ from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from users.user_model_db import UserAlchemyModel
-from users.schema import UserCreate, UserPatch, UserPut
+from users.schema import UserBase, UserPatch
 
 
 async def get_users(session: AsyncSession) -> List[UserAlchemyModel]:
@@ -28,7 +22,7 @@ async def get_user(session: AsyncSession, user_id: int) -> UserAlchemyModel | No
     return await session.get(UserAlchemyModel, user_id)
 
 
-async def create_user(session: AsyncSession, user_in: UserCreate) -> UserAlchemyModel:
+async def create_user(session: AsyncSession, user_in: UserBase) -> UserAlchemyModel:
     """Create User"""
     new_user = UserAlchemyModel(**user_in.model_dump())
     session.add(new_user)
@@ -36,7 +30,7 @@ async def create_user(session: AsyncSession, user_in: UserCreate) -> UserAlchemy
     return new_user
 
 
-async def put_user(session: AsyncSession, user_in: UserPut, user_id: int) -> UserAlchemyModel:
+async def put_user(session: AsyncSession, user_in: UserBase, user_id: int) -> UserAlchemyModel:
     """Put User"""
     user: UserAlchemyModel = await session.get(UserAlchemyModel, user_id)
     new_values: dict = user_in.model_dump()
@@ -46,10 +40,10 @@ async def put_user(session: AsyncSession, user_in: UserPut, user_id: int) -> Use
     return user
 
 
-async def patch_user(session: AsyncSession, user_in: UserPatch, user_id: int, method):
+async def patch_user(session: AsyncSession, user_in: UserPatch, user_id: int):
     """Patch User"""
     user: UserAlchemyModel = await session.get(UserAlchemyModel, user_id)
-    new_values: dict = user_in.model_dump()
+    new_values: dict = user_in.model_dump(exclude_unset=True)
     for name, attr in new_values.items():
         setattr(user, name, attr)
     await session.commit()
