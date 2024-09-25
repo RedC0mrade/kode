@@ -38,7 +38,7 @@ async def create_user(
     return await crud.create_user(session=session, user_in=user_create)
 
 
-@app.api_route("/user{user_id}", 
+@app.api_route("/user/{user_id}", 
                methods=["PUT", "PATCH"], 
                response_model=UserBase)
 async def put_patsh_user(
