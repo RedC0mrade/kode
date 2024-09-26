@@ -38,16 +38,20 @@ async def create_user(
     return await crud.create_user(session=session, user_in=user_create)
 
 
-@app.api_route("/user/{user_id}", 
-               methods=["PUT", "PATCH"], 
-               response_model=UserBase)
+@app.put("/user/{user_id}", response_model=User)
+async def put_user(user_id: int,
+                   user_in: User,
+                   session: AsyncSession = Depends(db_helper.session_dependency),
+                   ):
+    return await crud.put_user(user_id=user_id, session=session, user_in=user_in)
+
+@app.patch("/user/{user_id}", 
+               response_model=User)
 async def put_patsh_user(
     user_id: int,
-    user_in: Union[UserBase, UserPatch],
-    session: AsyncSession = Depends(db_helper.session_dependency)
+    user_in:  UserPatch,
+    session: AsyncSession = Depends(db_helper.session_dependency),
     ):
-    if Request.method == "PUT":
-        return await crud.put_user(session=session, user_id=user_id, user_in=user_in)
     return await crud.patch_user(session=session, user_id=user_id, user_in=user_in)
 
 

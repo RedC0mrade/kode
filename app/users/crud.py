@@ -6,7 +6,7 @@ from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from users.user_model_db import UserAlchemyModel
-from users.schema import UserBase, UserPatch
+from users.schema import User, UserBase, UserPatch
 
 
 async def get_users(session: AsyncSession) -> List[UserAlchemyModel]:
@@ -30,7 +30,7 @@ async def create_user(session: AsyncSession, user_in: UserBase) -> UserAlchemyMo
     return new_user
 
 
-async def put_user(session: AsyncSession, user_in: UserBase, user_id: int) -> UserAlchemyModel:
+async def put_user(session: AsyncSession, user_in: User, user_id: int) -> UserAlchemyModel:
     """Put User"""
     user: UserAlchemyModel = await session.get(UserAlchemyModel, user_id)
     new_values: dict = user_in.model_dump()
