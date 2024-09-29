@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: KodeDB
+      POSTGRES_USER: KodeUser
+      POSTGRES_PASSWORD: KodePassword
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db

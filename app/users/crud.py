@@ -1,6 +1,5 @@
-from typing import List, Optional
+from typing import List
 
-from fastapi import Response
 from sqlalchemy import select
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -40,7 +39,7 @@ async def put_user(session: AsyncSession, user_in: User, user_id: int) -> UserAl
     return user
 
 
-async def patch_user(session: AsyncSession, user_in: UserPatch, user_id: int):
+async def patch_user(session: AsyncSession, user_in: UserPatch, user_id: int) -> UserAlchemyModel:
     """Patch User"""
     user: UserAlchemyModel = await session.get(UserAlchemyModel, user_id)
     new_values: dict = user_in.model_dump(exclude_unset=True)

@@ -1,7 +1,4 @@
-from typing import List, Optional
-from sqlalchemy import Integer, String
-from sqlalchemy.orm import (DeclarativeBase, declared_attr, Mapped, 
-                            mapped_column, relationship)
+from sqlalchemy.orm import DeclarativeBase, declared_attr, Mapped, mapped_column
 
 
 class Base(DeclarativeBase):
