@@ -1,5 +1,4 @@
-from typing import Union
-from fastapi import HTTPException, Response, Request, status, Depends
+from fastapi import HTTPException, Response, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from main import app
@@ -45,8 +44,7 @@ async def put_user(user_id: int,
                    ):
     return await crud.put_user(user_id=user_id, session=session, user_in=user_in)
 
-@app.patch("/user/{user_id}", 
-               response_model=User)
+@app.patch("/user/{user_id}", response_model=User)
 async def put_patsh_user(
     user_id: int,
     user_in:  UserPatch,
