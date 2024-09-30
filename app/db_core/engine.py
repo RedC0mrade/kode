@@ -6,8 +6,7 @@ from sqlalchemy.ext.asyncio import (AsyncSession,
                                     async_scoped_session)
 
 
-BASE_DIR = Path(__file__).parent.parent.parent
-DB_URL = f"sqlite+aiosqlite:///{BASE_DIR}/JuliaBars.sqlite3"
+DB_URL = "sqlite+aiosqlite:///JuliaBars.sqlite3"
 
 # engine = create_async_engine(DB_URL, echo=True)
 # session_factory = async_sessionmarker(
