@@ -1,6 +1,5 @@
-from typing import List, Optional
+from typing import List
 
-from fastapi import Response
 from sqlalchemy import select
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
