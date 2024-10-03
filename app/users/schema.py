@@ -9,7 +9,7 @@ class User(BaseModel):
     age: int
 
 
-class UserPatch(User):
+class UserPatch(BaseModel):
     name: Optional["str"] = None
     fullname: Optional["str"] = None
     password: Optional["str"] = None

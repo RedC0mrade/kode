@@ -9,13 +9,13 @@ from users.user_model_db import UserAlchemyModel
 from users import views
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    async with db_helper.engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    yield
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     async with db_helper.engine.begin() as conn:
+#         await conn.run_sync(Base.metadata.create_all)
+#     yield
 
-app = FastAPI(lifespan=lifespan)
-
+# app = FastAPI(lifespan=lifespan)
+app =FastAPI()
 if __name__ == '__main__':
     uvicorn.run("main:app", reload=True)

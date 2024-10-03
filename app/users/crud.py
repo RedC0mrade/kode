@@ -40,7 +40,7 @@ async def put_user(session: AsyncSession, user_in: User, user_id: int) -> UserAl
     return user
 
 
-async def patch_user(session: AsyncSession, user_in: UserPatch, user_id: int):
+async def patch_user(session: AsyncSession, user_in: UserPatch, user_id: int) -> UserAlchemyModel:
     """Patch User"""
     user: UserAlchemyModel = await session.get(UserAlchemyModel, user_id)
     new_values: dict = user_in.model_dump(exclude_unset=True)
@@ -50,7 +50,7 @@ async def patch_user(session: AsyncSession, user_in: UserPatch, user_id: int):
     return user
     
 
-async def delete_user(session: AsyncSession, user_id: int):
+async def delete_user(session: AsyncSession, user_id: int) -> None:
     """Delete user"""
     del_user = await session.get(UserAlchemyModel, user_id)
     await session.delete(del_user)
