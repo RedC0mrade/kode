@@ -42,16 +42,18 @@ async def put_user(user_id: int,
                    user_in: User,
                    session: AsyncSession = Depends(db_helper.session_dependency),
                    ):
-    return await crud.put_user(user_id=user_id, session=session, user_in=user_in)
+    result: dict = await crud.put_user(user_id=user_id, session=session, user_in=user_in)
+    return Response(status_code=200, content=f"data changed {result}")
+
 
 @app.patch("/user/{user_id}", response_model=User)
-async def put_patsh_user(
+async def patch_user(
     user_id: int,
     user_in:  UserPatch,
     session: AsyncSession = Depends(db_helper.session_dependency),
     ):
-    return await crud.patch_user(session=session, user_id=user_id, user_in=user_in)
-
+    result: dict = await crud.patch_user(session=session, user_id=user_id, user_in=user_in)
+    return Response(status_code=200, content=f"data changed {result}")
 
 @app.delete("/user/{user_id}")
 async def delete_user(

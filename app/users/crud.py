@@ -1,6 +1,6 @@
 from typing import List
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -29,24 +29,21 @@ async def create_user(session: AsyncSession, user_in: UserBase) -> UserAlchemyMo
     return new_user
 
 
-async def put_user(session: AsyncSession, user_in: User, user_id: int) -> UserAlchemyModel:
+async def put_user(session: AsyncSession, user_in: User, user_id: int) -> dict:
     """Put User"""
-    user: UserAlchemyModel = await session.get(UserAlchemyModel, user_id)
     new_values: dict = user_in.model_dump()
-    for name, attr in new_values.items():
-        setattr(user, name, attr)
+    user = update(UserAlchemyModel).where(UserAlchemyModel.id==user_id).values(new_values)
+    await session.execute(user)
     await session.commit()
-    return user
+    return new_values
 
-
-async def patch_user(session: AsyncSession, user_in: UserPatch, user_id: int) -> UserAlchemyModel:
+async def patch_user(session: AsyncSession, user_in: UserPatch, user_id: int) -> dict:
     """Patch User"""
-    user: UserAlchemyModel = await session.get(UserAlchemyModel, user_id)
     new_values: dict = user_in.model_dump(exclude_unset=True)
-    for name, attr in new_values.items():
-        setattr(user, name, attr)
+    user = update(UserAlchemyModel).where(UserAlchemyModel.id==user_id).values(new_values)
+    await session.execute(user)
     await session.commit()
-    return user
+    return new_values
     
 
 async def delete_user(session: AsyncSession, user_id: int) -> None:
