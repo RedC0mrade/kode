@@ -7,6 +7,8 @@ class User(BaseModel):
     fullname: Optional["str"]
     password: str
     age: int
+    def __str__(self):   
+        return f"User(name={self.name}, fullname={self.fullname}, age={self.age})"
 
 
 class UserPatch(BaseModel):
@@ -16,7 +18,9 @@ class UserPatch(BaseModel):
     age: Optional["int"] = None
 
 
-class UserBase(User):
+class UserWithId(User):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    def __str__(self):   
+        return f"id = {self.id}, name={self.name}, fullname={self.fullname}, age={self.age}"

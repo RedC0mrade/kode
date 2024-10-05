@@ -15,5 +15,7 @@ class UserAlchemyModel(Base):
     age: Mapped[int] = mapped_column(Integer())
 
     def __repr__(self) -> str:
-        return (f"User(id={self.id!r}, name={self.name!r},", 
-                    f"fullname={self.fullname!r}, password={self.password!r})")
+        return f"id={self.id!r}, name={self.name!r}, fullname={self.fullname!r}, password={self.password!r}"
+    
+    def __str__(self) -> str:
+        return f"User(id={self.id}, name={self.name}, fullname={self.fullname}, password={self.password})"

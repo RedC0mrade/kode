@@ -5,7 +5,7 @@ from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from users.user_model_db import UserAlchemyModel
-from users.schema import User, UserBase, UserPatch
+from users.schema import User, UserWithId, UserPatch
 
 
 async def get_users(session: AsyncSession) -> List[UserAlchemyModel]:
@@ -21,7 +21,7 @@ async def get_user(session: AsyncSession, user_id: int) -> UserAlchemyModel | No
     return await session.get(UserAlchemyModel, user_id)
 
 
-async def create_user(session: AsyncSession, user_in: UserBase) -> UserAlchemyModel:
+async def create_user(session: AsyncSession, user_in: UserWithId) -> UserAlchemyModel:
     """Create User"""
     new_user = UserAlchemyModel(**user_in.model_dump())
     session.add(new_user)
@@ -36,6 +36,7 @@ async def put_user(session: AsyncSession, user_in: User, user_id: int) -> dict:
     await session.execute(user)
     await session.commit()
     return new_values
+
 
 async def patch_user(session: AsyncSession, user_in: UserPatch, user_id: int) -> dict:
     """Patch User"""
