@@ -40,10 +40,11 @@ async def create_user(
 
 
 @router_user.put("/{user_id}", response_model=User)
-async def put_user(user_id: int,
-                   user_in: User,
-                   session: AsyncSession = Depends(db_helper.session_dependency),
-                   ):
+async def put_user(
+    user_id: int,
+    user_in: User,
+    session: AsyncSession = Depends(db_helper.session_dependency),
+    ):
     result: dict = await crud.put_user(user_id=user_id, session=session, user_in=user_in)
     return Response(status_code=200, content=f"data changed {result}")
 
@@ -57,14 +58,13 @@ async def patch_user(
     result: dict = await crud.patch_user(session=session, user_id=user_id, user_in=user_in)
     return Response(status_code=200, content=f"data changed {result}")
 
-@router_user.delete("/{user_id}")
+@router_user.delete("/{user_id}", status_code=204)
 async def delete_user(
     user_id: int, 
     session: AsyncSession = Depends(db_helper.session_dependency)
     ):
     try: 
         await crud.delete_user(session=session, user_id=user_id)
-        return Response(status_code=200, content="user delete")
     except:
         return Response(status_code=404, content="user not found")
     
