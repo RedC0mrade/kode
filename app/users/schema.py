@@ -3,7 +3,7 @@ from pydantic import BaseModel, ConfigDict
 
 
 class User(BaseModel):
-    name: str
+    username: str
     fullname: Optional["str"]
     password: str
     age: int
@@ -12,7 +12,7 @@ class User(BaseModel):
 
 
 class UserPatch(BaseModel):
-    name: Optional["str"] = None
+    username: Optional["str"] = None
     fullname: Optional["str"] = None
     password: Optional["str"] = None
     age: Optional["int"] = None
