@@ -8,7 +8,7 @@ from config import settings
 
 
 class DatabaseHelper:
-    def __init__(self, url: str = settings.DB_URL, echo: bool = True):
+    def __init__(self, url: str = settings.url, echo: bool = True):
         self.engine = create_async_engine(
             url=url,
             echo=echo,
