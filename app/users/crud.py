@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from users.user_model_db import UserAlchemyModel
 from users.schema import User, UserWithId, UserPatch
+from authentication.token_utils import hash_password
 
 
 async def get_users(session: AsyncSession) -> List[UserAlchemyModel]:
@@ -22,7 +23,8 @@ async def get_user(session: AsyncSession, user_id: int) -> UserAlchemyModel | No
 
 
 async def create_user(session: AsyncSession, user_in: UserWithId) -> UserAlchemyModel:
-    
+
+    user_in.password = hash_password(user_in.password)
     new_user = UserAlchemyModel(**user_in.model_dump())
     session.add(new_user)
     await session.commit()
@@ -31,6 +33,7 @@ async def create_user(session: AsyncSession, user_in: UserWithId) -> UserAlchemy
 
 async def put_user(session: AsyncSession, user_in: User, user_id: int) -> dict:
     
+    user_in.password = hash_password(user_in.password)
     new_values: dict = user_in.model_dump()
     user = update(UserAlchemyModel).where(UserAlchemyModel.id==user_id).values(new_values)
     await session.execute(user)
@@ -41,8 +44,9 @@ async def put_user(session: AsyncSession, user_in: User, user_id: int) -> dict:
 async def patch_user(session: AsyncSession, user_in: UserPatch, user_id: int) -> dict:
     
     new_values: dict = user_in.model_dump(exclude_unset=True)
+    if new_values.get("password"):
+        new_values["password"] = hash_password(user_in.password)
     user = update(UserAlchemyModel).where(UserAlchemyModel.id==user_id).values(new_values)
-    print(user)
     await session.execute(user)
     await session.commit()
     return new_values
