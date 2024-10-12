@@ -58,6 +58,7 @@ async def patch_user(
     result: dict = await crud.patch_user(session=session, user_id=user_id, user_in=user_in)
     return Response(status_code=200, content=f"data changed {result}")
 
+
 @router_user.delete("/{user_id}", status_code=204)
 async def delete_user(
     user_id: int, 

@@ -1,10 +1,6 @@
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel
 
 
-class UserJwt(BaseModel):
-    model_config = ConfigDict(strict=True)
-
-    username: str
-    password: bytes
-    email: EmailStr | None = None
-    active: bool = True
+class Token(BaseModel):
+    acceess_token: str
+    token_type: str

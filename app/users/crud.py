@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from users.user_model_db import UserAlchemyModel
 from users.schema import User, UserWithId, UserPatch
-from authentication.token_utils import hash_password
+from authentication.password_utils import hash_password
 
 
 async def get_users(session: AsyncSession) -> List[UserAlchemyModel]:
