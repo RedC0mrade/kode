@@ -1,12 +1,19 @@
 from typing import List
 
-from sqlalchemy import delete, select, update
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy import select, update
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from users.user_model_db import UserAlchemyModel
 from users.schema import User, UserWithId, UserPatch
 from authentication.password_utils import hash_password
+from authentication.token_utils import decoded_token
+from db_core.engine import db_helper
+
+
+http_bearer = HTTPBearer()
 
 
 async def get_users(session: AsyncSession) -> List[UserAlchemyModel]:
@@ -57,3 +64,25 @@ async def delete_user(session: AsyncSession, user_id: int) -> None:
     user = await session.get(UserAlchemyModel, user_id)
     await session.delete(user)
     await session.commit()
+
+
+async def current_auth_user(session: AsyncSession = Depends(db_helper.session_dependency),
+        credential: HTTPAuthorizationCredentials = Depends(http_bearer)
+        ) -> User:
+    
+    token = credential.credentials
+    print(token)
+    payload = decoded_token(token=token)
+    print(payload)
+    username: str | None = payload.get("username")
+    
+    if not username:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="user not found")
+    
+    stmt = select(UserAlchemyModel).where(UserAlchemyModel.username==username)
+    result: Result = await session.execute(stmt)
+    user = result.scalar_one()
+    print(user.username)
+    return user
+

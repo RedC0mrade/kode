@@ -14,7 +14,7 @@ class UserAlchemyModel(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
 
     def __repr__(self) -> str:
-        return f"id={self.id!r}, name={self.username!r}"
+        return f"id={self.id!r}, username={self.username!r}"
     
     def __str__(self) -> str:
-        return f"User(id={self.id}, name={self.username}"
+        return f"id={self.id}, username={self.username}"

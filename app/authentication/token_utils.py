@@ -12,7 +12,7 @@ def encode_token(payload: dict,
                  expare_time_delta: timedelta | None = None):
     
     now = datetime.now(timezone.utc)
-    to_encode = payload.copy
+    to_encode = payload.copy()
 
     if expare_time_delta:
         exp = now + expare_time_delta
