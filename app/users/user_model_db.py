@@ -1,9 +1,13 @@
 from typing import Optional
+import sys
+import os
 
 from sqlalchemy import Integer, LargeBinary, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from db_core.base import Base
+from app.db_core.base import Base
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 
 class UserAlchemyModel(Base):

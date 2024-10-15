@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 import uuid
 import jwt
 
-from config import settings
+from app.config import settings
 
 
 def encode_token(payload: dict, 

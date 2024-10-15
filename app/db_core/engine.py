@@ -4,8 +4,7 @@ from sqlalchemy.ext.asyncio import (AsyncSession,
                                     create_async_engine, 
                                     async_scoped_session)
 
-from config import settings
-print(settings.url)
+from app.config import settings
 
 
 class DatabaseHelper:
