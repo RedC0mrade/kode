@@ -2,7 +2,6 @@ from typing import List
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jwt import PyJWTError
 from jwt.exceptions import InvalidTokenError
 from sqlalchemy import select, update
 from sqlalchemy.engine import Result
@@ -68,10 +67,11 @@ async def delete_user(session: AsyncSession, user_id: int) -> None:
     await session.commit()
 
 
-async def current_auth_user(session: AsyncSession = Depends(db_helper.session_dependency),
+async def current_auth_user(
+        session: AsyncSession = Depends(db_helper.session_dependency),
         token: str = Depends(OAuth2_shema)
         ) -> User:
-    
+    print(token)
     try:
         payload = decoded_token(token=token)
     except InvalidTokenError:
