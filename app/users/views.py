@@ -1,13 +1,12 @@
 from fastapi import APIRouter, HTTPException, Response, status, Depends
-from fastapi.security import HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.users import crud
 from app.users.schema import User, UserWithId, UserPatch
 from app.db_core.engine import db_helper
+from app.authentication.actions import current_auth_user
 
 
-http_bearer = HTTPBearer()
 router_user = APIRouter(prefix="/user", tags=["user"])
 router_users = APIRouter(prefix="/users", tags=["users"])
 
@@ -19,7 +18,7 @@ async def get_users(
 
 
 @router_user.get("/me", response_model=UserWithId)
-def get_me(user: User = Depends(crud.current_auth_user)):
+def get_me(user: User = Depends(current_auth_user)):
     return user
 
 

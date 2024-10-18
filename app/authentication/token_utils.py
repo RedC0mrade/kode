@@ -8,7 +8,7 @@ from app.config import settings
 def encode_token(payload: dict, 
                  private_key: str = settings.private_key.read_text(), 
                  algorithm: str = settings.algorithm,
-                 expire_minutes: int = settings.access_token_expire,
+                 expire_minutes: int = settings.access_token_expire_minute,
                  expare_time_delta: timedelta | None = None):
     
     now = datetime.now(timezone.utc)
