@@ -14,7 +14,7 @@ from app.constnt import TOKEN_TYPE, ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
 from app.config import settings
 
 
-OAuth2_shema = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 async def user_validate(session: AsyncSession = Depends(db_helper.session_dependency), 
                         username: str = Form(), 
@@ -38,7 +38,7 @@ async def user_validate(session: AsyncSession = Depends(db_helper.session_depend
 
 async def current_auth_user(
         session: AsyncSession = Depends(db_helper.session_dependency),
-        token: str = Depends(OAuth2_shema)
+        token: str = Depends(oauth2_scheme)
         ) -> User:
     try:
         payload = decoded_token(token=token)
