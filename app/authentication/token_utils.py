@@ -21,7 +21,7 @@ def encode_token(payload: dict,
 
     to_encode.update(exp=exp, iat=now, jti=str(uuid.uuid4()))
     
-    encoded = jwt.encode(payload, private_key, algorithm=algorithm)
+    encoded = jwt.encode(to_encode, private_key, algorithm=algorithm)
     
     return encoded
 
