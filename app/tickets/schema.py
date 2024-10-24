@@ -8,7 +8,7 @@ class Ticket(BaseModel):
     id: int
     ticket_name: str
     message: str
-    amount: str
+    amount: int
     
     acceptor: UserWithId
     acceptor_id: int

@@ -57,4 +57,3 @@ async def delete_user(session: AsyncSession, user_id: int) -> None:
     user = await session.get(UserAlchemyModel, user_id)
     await session.delete(user)
     await session.commit()
-
