@@ -18,9 +18,11 @@ class TicketAlchemyModel(Base):
     executor_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     executor: Mapped["UserAlchemyModel"] = relationship("UserAlchemyModel", 
                                                         foreign_keys=[executor_id], 
-                                                        back_populates="to_do_tickets")
+                                                        back_populates="to_do_tickets",
+                                                        lazy="joined")
 
     acceptor_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     acceptor: Mapped["UserAlchemyModel"] = relationship("UserAlchemyModel", 
                                                         foreign_keys=[acceptor_id], 
-                                                        back_populates="to_take_tickets")
+                                                        back_populates="to_take_tickets",
+                                                        lazy="joined")

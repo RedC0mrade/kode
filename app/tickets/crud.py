@@ -11,28 +11,24 @@ from app.tickets.ticket_model_db import TicketAlchemyModel
 
 async def create_ticket(ticket_in: CreateTicket,
                         user: UserWithId,
-                        session: AsyncSession) -> None:
+                        session: AsyncSession) -> TicketAlchemyModel:
     stmt = select(UserAlchemyModel).where(UserAlchemyModel.username==ticket_in.acceptor_username)
     result: Result = await session.execute(stmt)
-    print("0------------------------------------")
     acceptor = result.scalar_one_or_none()
-    print(acceptor.id)
-    print("1------------------------------------")
-    print(user)
-    print("2------------------------------------")
 
+    if not acceptor:
+        raise ValueError("Wrong username")
+    
     ticket = TicketAlchemyModel(ticket_name=ticket_in.ticket_name,
                                 message=ticket_in.message,
                                 amount=ticket_in.amount,
                                 acceptor_id=acceptor.id,
-                                # acceptor=acceptor,
-                                # executor=user,
                                 executor_id=user.id)
-    print(ticket)
     session.add(ticket)
     await session.commit()
-    print(ticket)
-    return None 
+    await session.refresh(ticket)
+
+    return ticket 
 
 
 async def delete_ticket(ticket_id, session):

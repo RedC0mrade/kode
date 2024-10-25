@@ -19,7 +19,8 @@ class UserAlchemyModel(Base):
         "TicketAlchemyModel",
         foreign_keys="[TicketAlchemyModel.executor_id]",
         back_populates="executor", 
-        cascade="all, delete-orphan")
+        cascade="all, delete-orphan"
+        )
 
     to_take_tickets: Mapped[list["TicketAlchemyModel"]] = relationship(
         "TicketAlchemyModel",
