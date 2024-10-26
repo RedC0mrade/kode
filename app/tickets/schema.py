@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.users.schema import UserWithId
 
@@ -20,5 +20,5 @@ class CreateTicket(BaseModel):
 
     ticket_name: str
     message: str
-    amount: int
+    amount: int = Field(..., gt=0)
     acceptor_username: str

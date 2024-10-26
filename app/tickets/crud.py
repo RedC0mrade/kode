@@ -1,3 +1,4 @@
+from typing import List
 from sqlalchemy import select, update
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,6 +8,14 @@ from app.users.schema import UserWithId
 from app.users.user_model_db import UserAlchemyModel
 from app.tickets.schema import CreateTicket, Ticket
 from app.tickets.ticket_model_db import TicketAlchemyModel
+
+
+async def get_my_tickets(user: UserWithId, 
+                         session: AsyncSession) -> List[TicketAlchemyModel]:
+    stmt = select(TicketAlchemyModel).where(TicketAlchemyModel.acceptor_id==user.id)
+    result: Result = await session.execute(stmt)
+    tickets = result.scalars().all()
+    return list(tickets)
 
 
 async def create_ticket(ticket_in: CreateTicket,
