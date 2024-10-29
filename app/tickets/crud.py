@@ -1,13 +1,22 @@
 from typing import List
-from sqlalchemy import select, update
+from fastapi import HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
 from app.users.schema import UserWithId
 from app.users.user_model_db import UserAlchemyModel
-from app.tickets.schema import CreateTicket, Ticket
+from app.tickets.schema import CreateTicket
 from app.tickets.ticket_model_db import TicketAlchemyModel
+
+
+async def get_my_tasks(user: UserWithId, 
+                       session: AsyncSession) -> List[TicketAlchemyModel]:
+    stmt = select(TicketAlchemyModel).where(TicketAlchemyModel.executor_id==user.id)
+    result: Result = await session.execute(stmt)
+    tickets = result.scalars().all()
+    return list(tickets)
 
 
 async def get_my_tickets(user: UserWithId, 
@@ -26,7 +35,10 @@ async def create_ticket(ticket_in: CreateTicket,
     acceptor = result.scalar_one_or_none()
 
     if not acceptor:
-        raise ValueError("Wrong username")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"{ticket_in.acceptor_username}, not found"
+            )
     
     ticket = TicketAlchemyModel(ticket_name=ticket_in.ticket_name,
                                 message=ticket_in.message,
