@@ -1,8 +1,8 @@
-"""Specify foreign keys in relationships
+"""create tables
 
-Revision ID: f56ef97c065f
+Revision ID: ff9e68f9a862
 Revises: 
-Create Date: 2024-10-23 17:00:33.162045
+Create Date: 2024-10-30 22:09:18.593250
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'f56ef97c065f'
+revision: str = 'ff9e68f9a862'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -38,7 +38,8 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['acceptor_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['executor_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('acceptor_id', 'executor_id', 'ticket_name', name='unique_ticket')
     )
     # ### end Alembic commands ###
 

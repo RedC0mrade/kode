@@ -38,3 +38,11 @@ async def get_my_tickets(user: UserWithId = Depends(current_auth_user),
 async def get_my_tickets(user: UserWithId = Depends(current_auth_user),
                          session: AsyncSession = Depends(db_helper.session_dependency)):
     return await crud.get_my_tasks(user=user, session=session)
+
+
+@ticket_router.post("/ticket_done/{ticked_id}", response_model=Ticket | None)
+async def ticket_done(ticket_id: int,
+                      acceptor: UserWithId = Depends(current_auth_user),
+                      session: AsyncSession = Depends(db_helper.session_dependency)):
+    
+    return await crud.ticker_done(ticket_id, acceptor=acceptor, session=session)

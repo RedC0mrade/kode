@@ -1,6 +1,6 @@
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from app.db_core.base import Base
 
@@ -12,7 +12,7 @@ class TicketAlchemyModel(Base):
     __tablename__ = "tickets"
 
     ticket_name: Mapped[str] = mapped_column(String(50))
-    message: Mapped[str] = mapped_column(String(200))
+    message: Mapped[List[str]] = mapped_column(String(200))
     amount: Mapped[int] = mapped_column(Integer)
 
     executor_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
@@ -26,3 +26,7 @@ class TicketAlchemyModel(Base):
                                                         foreign_keys=[acceptor_id], 
                                                         back_populates="to_take_tickets",
                                                         lazy="joined")
+
+    __table_args__ = (
+        UniqueConstraint("acceptor_id", "executor_id", "ticket_name", name="unique_ticket"),
+    )
