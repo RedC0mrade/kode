@@ -1,8 +1,9 @@
-from sqlalchemy import ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import JSON, Enum, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import TYPE_CHECKING, List
 
 from app.db_core.base import Base
+from app.tickets.schema import TicketName
 
 if TYPE_CHECKING:
     from app.users.user_model_db import UserAlchemyModel
@@ -11,8 +12,8 @@ if TYPE_CHECKING:
 class TicketAlchemyModel(Base):
     __tablename__ = "tickets"
 
-    ticket_name: Mapped[str] = mapped_column(String(50))
-    message: Mapped[List[str]] = mapped_column(String(200))
+    ticket_name: Mapped[str] = mapped_column(Enum(TicketName), nullable=False)
+    message: Mapped[List[str]] = mapped_column(JSON, default=list)
     amount: Mapped[int] = mapped_column(Integer)
 
     executor_id: Mapped[int] = mapped_column(ForeignKey("users.id"))

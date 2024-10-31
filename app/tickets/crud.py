@@ -41,7 +41,7 @@ async def create_ticket(ticket_in: CreateTicket,
             )
     
     ticket = TicketAlchemyModel(ticket_name=ticket_in.ticket_name,
-                                message=ticket_in.message,
+                                message=[ticket_in.message],
                                 amount=ticket_in.amount,
                                 acceptor_id=acceptor.id,
                                 executor_id=user.id)

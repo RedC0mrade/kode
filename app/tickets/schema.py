@@ -1,13 +1,22 @@
+from enum import Enum
+from typing import List
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.users.schema import UserWithId
 
 
+class TicketName(str, Enum):
+    wash = "wash"
+    clean = "clean"
+    garbage = "garbage"
+    vacuum = "vacuum"
+    iron = "iron"
+
 class Ticket(BaseModel):
 
     id: int
-    ticket_name: str
-    message: str
+    ticket_name: TicketName
+    message: List[str]
     amount: int
     acceptor: UserWithId
     acceptor_id: int
@@ -18,7 +27,7 @@ class Ticket(BaseModel):
 
 class CreateTicket(BaseModel):
 
-    ticket_name: str
+    ticket_name: TicketName
     message: str
     amount: int = Field(..., gt=0)
     acceptor_username: str
