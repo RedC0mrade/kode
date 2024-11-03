@@ -27,7 +27,7 @@ class Ticket(BaseModel):
 
 class CreateTicket(BaseModel):
 
-    ticket_name: TicketName
+    # ticket_name: TicketName
     message: str
     amount: int = Field(..., gt=0)
     acceptor_username: str
