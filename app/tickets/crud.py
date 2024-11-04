@@ -50,33 +50,16 @@ async def create_ticket(ticket_in: CreateTicket,
         TicketAlchemyModel.executor_id==user.id,
         TicketAlchemyModel.ticket_name==ticket_name,
         ))
-    print(111111111111111111111111111111111111)
-    try:
-        result = await session.execute(check_stmt)
-        print(2222222222222222222222222222)
-        check_ticket = result.scalar_one_or_none()
-    except JSONDecodeError as e:
-        print(f"!!!!!!!!!!!!!!!!!!!JSON decode error in check_stmt: {e}")
-    # result: Result = await session.execute(check_stmt)
-    # check_ticket = result_1.scalar_one_or_none()
-    if check_ticket:
-        await add_to_existing_tickets(ticket_id=check_ticket.id,
-                                      amount=ticket_in.amount,
-                                      message=ticket_in.message,
-                                      executor=user,
-                                      session=session)
 
-        # update_ticket = (
-        #     update(TicketAlchemyModel)
-        #     .where(TicketAlchemyModel.id==check_ticket.id)
-        #     .values({
-        #         "amount": TicketAlchemyModel.amount + ticket_in.amount, 
-        #         "message": TicketAlchemyModel.message + [ticket_in.message]
-        #     })
-        # )
-        # await session.execute(update_ticket)
-        # await session.commit()
-        # return await session.get(TicketAlchemyModel, check_ticket.id)
+    result: Result = await session.execute(check_stmt)
+    check_ticket = result.scalar_one_or_none()
+    
+    if check_ticket:
+        return await add_to_existing_tickets(ticket_id=check_ticket.id,
+                                             amount=ticket_in.amount,
+                                             message=ticket_in.message,
+                                             executor=user,
+                                             session=session)
 
     ticket = TicketAlchemyModel(ticket_name=ticket_name,
                                 message=[ticket_in.message],
@@ -119,31 +102,34 @@ async def add_to_existing_tickets(ticket_id: int,
     stmt = select(TicketAlchemyModel).where(and_(TicketAlchemyModel.id==ticket_id,
                                                  TicketAlchemyModel.executor_id==executor.id))
     result: Result = await session.execute(stmt)
-    ticket = result.scalar_one_or_none()
+    ticket: Ticket = result.scalar_one_or_none()
 
     if not ticket:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="ticket not found"
             )
-        
+    
+    ticket.message.append(message)
     update_ticket = (update(TicketAlchemyModel)
-                     .where(and_(
-                        TicketAlchemyModel.id==ticket_id, 
-                        TicketAlchemyModel.executor_id==executor.id))
+                     .where(TicketAlchemyModel.id==ticket_id)
                      .values({
                         "amount": TicketAlchemyModel.amount + amount, 
-                        "message": TicketAlchemyModel.message + [message]
+                        "message": ticket.message
             })
         )
     await session.execute(update_ticket)
     await session.commit()
-
     return await session.get(TicketAlchemyModel, ticket_id)
 
 
-async def delete_ticket(ticket_id, session):
+async def delete_ticket(ticket_id: int, session: AsyncSession) -> None:
     ticket: TicketAlchemyModel = await session.get(TicketAlchemyModel, ticket_id)
     await session.delete(ticket)
     await session.commit()
-    
+
+
+async def get_ticket(ticket_id: int, session: AsyncSession) -> TicketAlchemyModel:
+    ticket: TicketAlchemyModel = await session.get(TicketAlchemyModel, ticket_id)
+
+    return ticket

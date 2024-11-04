@@ -26,7 +26,7 @@ async def delete_ticket(ticket_id: int,
     try: 
         await crud.delete_ticket(ticket_id=ticket_id, session=session)
     except:
-        return Response(status_code=404, content="user not found")
+        return Response(status_code=404, content="Ticket not found")
     
 
 @ticket_router.get("/my_tickets", response_model=List[Ticket])
@@ -61,3 +61,9 @@ async def add_to_existing_tickets(ticket_id: int,
                                               message=message,
                                               executor=executor,
                                               session=session)
+
+
+@ticket_router.get("/ticket", response_model=Ticket)
+async def get_ticket(ticket_id: int,
+                     session: AsyncSession = Depends(db_helper.session_dependency)):
+    return await crud.get_ticket(ticket_id=ticket_id, session=session)
