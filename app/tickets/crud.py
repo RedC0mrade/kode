@@ -111,10 +111,11 @@ async def add_to_existing_tickets(ticket_id: int,
             )
     
     ticket.message.append(message)
+    update_amount: int = ticket.amount + amount
     update_ticket = (update(TicketAlchemyModel)
                      .where(TicketAlchemyModel.id==ticket_id)
                      .values({
-                        "amount": TicketAlchemyModel.amount + amount, 
+                        "amount": update_amount, 
                         "message": ticket.message
             })
         )
