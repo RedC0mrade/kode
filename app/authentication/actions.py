@@ -10,7 +10,7 @@ from app.users.user_model_db import UserAlchemyModel
 from app.users.schema import User
 from app.authentication.password_utils import validate_password
 from app.authentication.token_utils import encode_token, decoded_token
-from app.constnt import TOKEN_TYPE, ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
+from app.constant import TOKEN_TYPE, ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
 from app.config import settings
 
 

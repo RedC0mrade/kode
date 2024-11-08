@@ -8,7 +8,7 @@ from app.authentication.models import Token
 from app.authentication.actions import (user_validate, 
                                          create_acces_token, 
                                          refresh_token)
-from app.constnt import REFRESH_TOKEN_TYPE, TOKEN_TYPE
+from app.constant import REFRESH_TOKEN_TYPE, TOKEN_TYPE
 from app.authentication.token_utils import decoded_token
 from app.authentication.actions import oauth2_scheme
 from app.users.user_model_db import UserAlchemyModel
