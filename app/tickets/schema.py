@@ -17,6 +17,7 @@ class Ticket(BaseModel):
     id: int
     ticket_name: TicketName
     message: List[str]
+    # tags: List[TagAlchemyModel]
     amount: int
     acceptor: UserWithId
     acceptor_id: int
@@ -28,6 +29,7 @@ class Ticket(BaseModel):
 class CreateTicket(BaseModel):
 
     # ticket_name: TicketName
+    
     message: str
     amount: int = Field(..., gt=0)
     acceptor_username: str

@@ -7,10 +7,14 @@ from app.tickets.schema import TicketName
 
 if TYPE_CHECKING:
     from app.users.user_model_db import UserAlchemyModel
+    from app.tags.tag_model_db import TagAlchemyModel, TicketTagAssociation
 
 
 class TicketAlchemyModel(Base):
     __tablename__ = "tickets"
+    __table_args__ = (
+        UniqueConstraint("acceptor_id", "executor_id", "ticket_name", name="unique_ticket"),
+    )
 
     ticket_name: Mapped[str] = mapped_column(Enum(TicketName), nullable=False)
     message: Mapped[List[str]] = mapped_column(JSON, default=list)
@@ -27,7 +31,9 @@ class TicketAlchemyModel(Base):
                                                         foreign_keys=[acceptor_id], 
                                                         back_populates="to_take_tickets",
                                                         lazy="joined")
+    
+    # tags: Mapped[list["TagAlchemyModel"]] = relationship(secondary="ticket_tag", 
+    #                                                      back_populates="tickets")
+    
+    tags: Mapped[list["TicketTagAssociation"]] = relationship(back_populates="ticket")
 
-    __table_args__ = (
-        UniqueConstraint("acceptor_id", "executor_id", "ticket_name", name="unique_ticket"),
-    )
