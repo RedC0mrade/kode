@@ -32,8 +32,6 @@ class TicketAlchemyModel(Base):
                                                         back_populates="to_take_tickets",
                                                         lazy="joined")
     
-    # tags: Mapped[list["TagAlchemyModel"]] = relationship(secondary="ticket_tag", 
-    #                                                      back_populates="tickets")
     
     tags: Mapped[list["TicketTagAssociation"]] = relationship(back_populates="ticket")
 
