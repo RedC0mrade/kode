@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from app.db_core.base import Base
 from app.constant import HEX_COLOR_REGEX
 
@@ -17,7 +16,8 @@ class TagAlchemyModel(Base):
 
     tag_name: Mapped[str] = mapped_column(String(30))
     tag_color: Mapped[str] = mapped_column(String(7))
-    tickets: Mapped[list["TicketTagAssociation"]] = relationship(back_populates="tag")
+    tickets: Mapped[list["TicketTagAssociation"]] = relationship(back_populates="tag", 
+                                                                 cascade="all, delete-orphan")
 
     def __init__(self, tag_color: str, tag_name: str):
         if not re.match(HEX_COLOR_REGEX, tag_color):

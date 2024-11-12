@@ -3,11 +3,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import TYPE_CHECKING, List
 
 from app.db_core.base import Base
-from app.tickets.schema import TicketName
 
 if TYPE_CHECKING:
     from app.users.user_model_db import UserAlchemyModel
-    from app.tags.tag_model_db import TagAlchemyModel, TicketTagAssociation
+    from app.tags.tag_model_db import TicketTagAssociation
 
 
 class TicketAlchemyModel(Base):
@@ -16,7 +15,7 @@ class TicketAlchemyModel(Base):
         UniqueConstraint("acceptor_id", "executor_id", "ticket_name", name="unique_ticket"),
     )
 
-    ticket_name: Mapped[str] = mapped_column(Enum(TicketName), nullable=False)
+    ticket_name: Mapped[str] = mapped_column(String(100))
     message: Mapped[List[str]] = mapped_column(JSON, default=list)
     amount: Mapped[int] = mapped_column(Integer)
 
@@ -33,5 +32,8 @@ class TicketAlchemyModel(Base):
                                                         lazy="joined")
     
     
-    tags: Mapped[list["TicketTagAssociation"]] = relationship(back_populates="ticket")
+    tags: Mapped[list["TicketTagAssociation"]] = relationship(back_populates="ticket",
+                                                              cascade="all, delete-orphan")
 
+    def __str__(self) -> str:
+        return f"id={self.id}, ticket_name={self.ticket_name}, message{self.message}, tags{self.tags}"

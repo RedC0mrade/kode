@@ -1,14 +1,14 @@
-from json import JSONDecodeError
 from typing import List
 from fastapi import HTTPException, status
 from sqlalchemy import and_, select, update
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
-
+from app.tags.schema import Tag
 from app.users.schema import UserWithId
-from app.users.user_model_db import UserAlchemyModel
-from app.tickets.schema import CreateTicket, Ticket, TicketName
+from app.tags.tag_model_db import TagAlchemyModel, TicketTagAssociation
+from app.tickets.schema import CreateTicket, Ticket
 from app.tickets.ticket_model_db import TicketAlchemyModel
 
 
@@ -29,47 +29,51 @@ async def get_my_tickets(user: UserWithId,
 
 
 async def create_ticket(ticket_in: CreateTicket,
-                        ticket_name: TicketName,
                         user: UserWithId,
                         session: AsyncSession) -> TicketAlchemyModel:
-
-    stmt = select(UserAlchemyModel).where(UserAlchemyModel.username==ticket_in.acceptor_username)
-
-    result: Result = await session.execute(stmt)
-
-    acceptor = result.scalar_one_or_none()
-
-    if not acceptor:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"{ticket_in.acceptor_username}, not found"
-            )
     
-    check_stmt = select(TicketAlchemyModel).where(and_(
-        TicketAlchemyModel.acceptor_id==acceptor.id,
-        TicketAlchemyModel.executor_id==user.id,
-        TicketAlchemyModel.ticket_name==ticket_name,
-        ))
+    # check_stmt = select(TicketAlchemyModel).where(and_(
+    #     TicketAlchemyModel.ticket_name==ticket_in.ticket_name,
+    #     TicketAlchemyModel.acceptor_id==ticket_in.acceptor_id,
+    #     TicketAlchemyModel.executor_id==user.id,
+    #     ))
 
-    result: Result = await session.execute(check_stmt)
-    check_ticket = result.scalar_one_or_none()
+    # result: Result = await session.execute(check_stmt)
+    # check_ticket: TicketAlchemyModel = result.scalar_one_or_none()
     
-    if check_ticket:
-        return await add_to_existing_tickets(ticket_id=check_ticket.id,
-                                             amount=ticket_in.amount,
-                                             message=ticket_in.message,
-                                             executor=user,
-                                             session=session)
+    # if check_ticket:
+    #     return await add_to_existing_tickets(ticket_id=check_ticket.id,
+    #                                          amount=ticket_in.amount,
+    #                                          message=ticket_in.message,
+    #                                          executor=user,
+    #                                          session=session)
 
-    ticket = TicketAlchemyModel(ticket_name=ticket_name,
+    ticket = TicketAlchemyModel(ticket_name=ticket_in.ticket_name,
                                 message=[ticket_in.message],
                                 amount=ticket_in.amount,
-                                acceptor_id=acceptor.id,
+                                acceptor_id=ticket_in.acceptor_id,
                                 executor_id=user.id)
     session.add(ticket)
+    await session.flush()
+
+    stmt = select(TagAlchemyModel).where(TagAlchemyModel.id.in_(ticket_in.tags_id))
+    result: Result = await session.execute(stmt)
+    tags: List[TagAlchemyModel] = result.scalars().all()
+
+    associations = [TicketTagAssociation(ticket_id=ticket.id, tag_id=tag.id) for tag in tags]
+
+    session.add_all(associations)
     await session.commit()
     await session.refresh(ticket)
-
+    stmt = select(TicketAlchemyModel).options(selectinload(TicketAlchemyModel.tags).selectinload(TicketTagAssociation.tag)).where(TicketAlchemyModel.id == ticket.id)
+    result: Result = await session.execute(stmt)
+    ticket_with_tags: TicketAlchemyModel = result.scalar_one_or_none()
+    ticket_with_tags.tag_objects = [
+        Tag(id=association.tag.id, tag_name=association.tag.tag_name, tag_color=association.tag.tag_color)
+        for association in ticket_with_tags.tags
+    ]
+    
+    print(f'{ticket_with_tags}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     return ticket
 
 

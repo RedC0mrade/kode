@@ -2,22 +2,16 @@ from enum import Enum
 from typing import List
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.tags.schema import Tag
 from app.users.schema import UserWithId
 
-
-class TicketName(str, Enum):
-    wash = "wash"
-    clean = "clean"
-    garbage = "garbage"
-    vacuum = "vacuum"
-    iron = "iron"
 
 class Ticket(BaseModel):
 
     id: int
-    ticket_name: TicketName
+    ticket_name: str
     message: List[str]
-    # tags: List[TagAlchemyModel]
+    tags: List[Tag]
     amount: int
     acceptor: UserWithId
     acceptor_id: int
@@ -28,8 +22,8 @@ class Ticket(BaseModel):
 
 class CreateTicket(BaseModel):
 
-    # ticket_name: TicketName
-    
+    ticket_name: str
     message: str
     amount: int = Field(..., gt=0)
-    acceptor_username: str
+    acceptor_id: int
+    tags_id: list[int]
