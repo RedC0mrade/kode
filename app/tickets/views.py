@@ -11,7 +11,7 @@ from app.tickets import crud
 
 ticket_router = APIRouter(prefix="/ticket_router", tags=["ticket"])
 
-@ticket_router.post("/", response_model=Ticket, status_code=201)
+@ticket_router.post("/", status_code=201) #response_model=Ticket,
 async def create_ticket(ticket_in: CreateTicket,
                         user: UserWithId = Depends(current_auth_user),
                         session: AsyncSession = Depends(db_helper.session_dependency)):

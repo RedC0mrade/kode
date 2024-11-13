@@ -30,7 +30,7 @@ async def get_my_tickets(user: UserWithId,
 
 async def create_ticket(ticket_in: CreateTicket,
                         user: UserWithId,
-                        session: AsyncSession) -> TicketAlchemyModel:
+                        session: AsyncSession): #-> TicketAlchemyModel:
     
     # check_stmt = select(TicketAlchemyModel).where(and_(
     #     TicketAlchemyModel.ticket_name==ticket_in.ticket_name,
@@ -67,13 +67,8 @@ async def create_ticket(ticket_in: CreateTicket,
     await session.refresh(ticket)
     stmt = select(TicketAlchemyModel).options(selectinload(TicketAlchemyModel.tags).selectinload(TicketTagAssociation.tag)).where(TicketAlchemyModel.id == ticket.id)
     result: Result = await session.execute(stmt)
-    ticket_with_tags: TicketAlchemyModel = result.scalar_one_or_none()
-    ticket_with_tags.tag_objects = [
-        Tag(id=association.tag.id, tag_name=association.tag.tag_name, tag_color=association.tag.tag_color)
-        for association in ticket_with_tags.tags
-    ]
+    ticket.tags = [association.tag for association in ticket.tags]
     
-    print(f'{ticket_with_tags}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     return ticket
 
 
