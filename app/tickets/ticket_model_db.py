@@ -6,7 +6,7 @@ from app.db_core.base import Base
 
 if TYPE_CHECKING:
     from app.users.user_model_db import UserAlchemyModel
-    from app.tags.tag_model_db import TicketTagAssociation
+    from app.tags.tag_model_db import TicketTagAssociation, TagAlchemyModel
 
 
 class TicketAlchemyModel(Base):
@@ -32,8 +32,9 @@ class TicketAlchemyModel(Base):
                                                         lazy="joined")
     
     
-    tags: Mapped[list["TicketTagAssociation"]] = relationship(back_populates="ticket",
-                                                              cascade="all, delete-orphan")
-
+    # tags: Mapped[list["TicketTagAssociation"]] = relationship(back_populates="ticket",
+    #                                                           cascade="all, delete-orphan")
+    tags: Mapped[list["TagAlchemyModel"]] = relationship(secondary="ticket_tag",
+                                                       back_populates="tickets")
     def __str__(self) -> str:
         return f"id={self.id}, ticket_name={self.ticket_name}, message{self.message}, tags{self.tags}"

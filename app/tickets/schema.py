@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import List
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -19,6 +18,7 @@ class Ticket(BaseModel):
     executor_id: int
 
     model_config = ConfigDict(from_attributes=True)
+
 
 class CreateTicket(BaseModel):
 

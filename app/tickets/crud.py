@@ -1,5 +1,4 @@
 from typing import List
-from fastapi import HTTPException, status
 from sqlalchemy import and_, select, update
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,23 +29,21 @@ async def get_my_tickets(user: UserWithId,
 
 async def create_ticket(ticket_in: CreateTicket,
                         user: UserWithId,
-                        session: AsyncSession): #-> TicketAlchemyModel:
-    
-    # check_stmt = select(TicketAlchemyModel).where(and_(
-    #     TicketAlchemyModel.ticket_name==ticket_in.ticket_name,
-    #     TicketAlchemyModel.acceptor_id==ticket_in.acceptor_id,
-    #     TicketAlchemyModel.executor_id==user.id,
-    #     ))
+                        session: AsyncSession):
+    check_stmt = select(TicketAlchemyModel).where(and_(
+        TicketAlchemyModel.ticket_name==ticket_in.ticket_name,
+        TicketAlchemyModel.acceptor_id==ticket_in.acceptor_id,
+        TicketAlchemyModel.executor_id==user.id,
+        ))
 
-    # result: Result = await session.execute(check_stmt)
-    # check_ticket: TicketAlchemyModel = result.scalar_one_or_none()
+    result: Result = await session.execute(check_stmt)
+    check_ticket: TicketAlchemyModel = result.scalar_one_or_none()
     
-    # if check_ticket:
-    #     return await add_to_existing_tickets(ticket_id=check_ticket.id,
-    #                                          amount=ticket_in.amount,
-    #                                          message=ticket_in.message,
-    #                                          executor=user,
-    #                                          session=session)
+    if check_ticket:
+        print(check_ticket)
+        # return await add_to_existing_tickets(ticket=check_ticket,
+        #                                      ticket_in=ticket_in,
+        #                                      session=session)
 
     ticket = TicketAlchemyModel(ticket_name=ticket_in.ticket_name,
                                 message=[ticket_in.message],
@@ -59,18 +56,17 @@ async def create_ticket(ticket_in: CreateTicket,
     stmt = select(TagAlchemyModel).where(TagAlchemyModel.id.in_(ticket_in.tags_id))
     result: Result = await session.execute(stmt)
     tags: List[TagAlchemyModel] = result.scalars().all()
-
     associations = [TicketTagAssociation(ticket_id=ticket.id, tag_id=tag.id) for tag in tags]
 
     session.add_all(associations)
     await session.commit()
     await session.refresh(ticket)
-    stmt = select(TicketAlchemyModel).options(selectinload(TicketAlchemyModel.tags).selectinload(TicketTagAssociation.tag)).where(TicketAlchemyModel.id == ticket.id)
+    stmt = select(TicketAlchemyModel).options(
+        selectinload(TicketAlchemyModel.tags)
+        ).where(TicketAlchemyModel.id == ticket.id)
     result: Result = await session.execute(stmt)
-    ticket.tags = [association.tag for association in ticket.tags]
-    
+ 
     return ticket
-
 
 async def ticker_done(ticket_id: int, 
                       acceptor: UserWithId, 
@@ -92,27 +88,15 @@ async def ticker_done(ticket_id: int,
     return refresh_ticket
     
     
-async def add_to_existing_tickets(ticket_id: int,
-                                  amount: int, 
-                                  executor: UserWithId,
-                                  message: str,
+async def add_to_existing_tickets(ticket: TicketAlchemyModel,
+                                  ticket_in: CreateTicket,
                                   session: AsyncSession) -> TicketAlchemyModel:
     
-    stmt = select(TicketAlchemyModel).where(and_(TicketAlchemyModel.id==ticket_id,
-                                                 TicketAlchemyModel.executor_id==executor.id))
-    result: Result = await session.execute(stmt)
-    ticket: Ticket = result.scalar_one_or_none()
+    ticket.message.append(ticket_in.message)
+    update_amount: int = ticket.amount + ticket_in.amount
 
-    if not ticket:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="ticket not found"
-            )
-    
-    ticket.message.append(message)
-    update_amount: int = ticket.amount + amount
     update_ticket = (update(TicketAlchemyModel)
-                     .where(TicketAlchemyModel.id==ticket_id)
+                     .where(TicketAlchemyModel.id==ticket.id)
                      .values({
                         "amount": update_amount, 
                         "message": ticket.message
@@ -120,7 +104,8 @@ async def add_to_existing_tickets(ticket_id: int,
         )
     await session.execute(update_ticket)
     await session.commit()
-    return await session.get(TicketAlchemyModel, ticket_id)
+    await session.refresh()
+    # return await session.get(TicketAlchemyModel, ticket_id)
 
 
 async def delete_ticket(ticket_id: int, session: AsyncSession) -> None:
