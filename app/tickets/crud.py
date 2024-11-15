@@ -29,7 +29,7 @@ async def get_my_tickets(user: UserWithId,
 
 async def create_ticket(ticket_in: CreateTicket,
                         user: UserWithId,
-                        session: AsyncSession):
+                        session: AsyncSession) -> TicketAlchemyModel:
     check_stmt = select(TicketAlchemyModel).where(and_(
         TicketAlchemyModel.ticket_name==ticket_in.ticket_name,
         TicketAlchemyModel.acceptor_id==ticket_in.acceptor_id,
@@ -40,10 +40,9 @@ async def create_ticket(ticket_in: CreateTicket,
     check_ticket: TicketAlchemyModel = result.scalar_one_or_none()
     
     if check_ticket:
-        print(check_ticket)
-        # return await add_to_existing_tickets(ticket=check_ticket,
-        #                                      ticket_in=ticket_in,
-        #                                      session=session)
+        return await add_to_existing_tickets(ticket=check_ticket,
+                                             ticket_in=ticket_in,
+                                             session=session)
 
     ticket = TicketAlchemyModel(ticket_name=ticket_in.ticket_name,
                                 message=[ticket_in.message],
@@ -102,10 +101,23 @@ async def add_to_existing_tickets(ticket: TicketAlchemyModel,
                         "message": ticket.message
             })
         )
+    associations = list()
+
+    for tag in ticket_in.tags_id:
+        print(tag)
+        try:
+            associations.append(TicketTagAssociation(ticket_id=ticket_in.id, tag_id=tag.id))
+        except:
+            continue
+    print(associations)
+    session.add_all(associations)
     await session.execute(update_ticket)
     await session.commit()
-    await session.refresh()
-    # return await session.get(TicketAlchemyModel, ticket_id)
+    stmt = select(TicketAlchemyModel).options(
+        selectinload(TicketAlchemyModel.tags)
+        ).where(TicketAlchemyModel.id == ticket.id)
+    await session.execute(stmt)
+    return ticket
 
 
 async def delete_ticket(ticket_id: int, session: AsyncSession) -> None:

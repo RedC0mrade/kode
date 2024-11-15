@@ -37,4 +37,4 @@ class TicketAlchemyModel(Base):
     tags: Mapped[list["TagAlchemyModel"]] = relationship(secondary="ticket_tag",
                                                        back_populates="tickets")
     def __str__(self) -> str:
-        return f"id={self.id}, ticket_name={self.ticket_name}, message{self.message}, tags{self.tags}"
+        return f"id={self.id}, ticket_name={self.ticket_name}, message{self.message}"
