@@ -51,13 +51,11 @@ async def create_ticket(ticket_in: CreateTicket,
                                 executor_id=user.id)
     session.add(ticket)
     await session.flush()
-
-    stmt = select(TagAlchemyModel).where(TagAlchemyModel.id.in_(ticket_in.tags_id))
-    result: Result = await session.execute(stmt)
-    tags: List[TagAlchemyModel] = result.scalars().all()
-    associations = [TicketTagAssociation(ticket_id=ticket.id, tag_id=tag.id) for tag in tags]
-
-    session.add_all(associations)
+    print(ticket_in.tags_id, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+    if ticket_in.tags_id:
+        associations = [TicketTagAssociation(ticket_id=ticket.id, tag_id=tag) for tag in ticket_in.tags_id]
+        session.add_all(associations)
+        
     await session.commit()
     await session.refresh(ticket)
     stmt = select(TicketAlchemyModel).options(
@@ -101,16 +99,15 @@ async def add_to_existing_tickets(ticket: TicketAlchemyModel,
                         "message": ticket.message
             })
         )
-    associations = list()
+    stmt = select(TicketTagAssociation.tag_id).where(TicketTagAssociation.ticket_id==ticket.id)
+    result: Result = await session.execute(stmt)
+    tickets_ids = result.scalars().all()
+    if ticket_in.tags_id:
+        if tickets_ids and (new_tags_ids := set(ticket_in.tags_id) - set(tickets_ids)):
+            new_tags = [TicketTagAssociation(ticket_id=ticket.id, tag_id=tag) for tag in new_tags_ids]
+            session.add_all(new_tags)
+            
 
-    for tag in ticket_in.tags_id:
-        print(tag)
-        try:
-            associations.append(TicketTagAssociation(ticket_id=ticket_in.id, tag_id=tag.id))
-        except:
-            continue
-    print(associations)
-    session.add_all(associations)
     await session.execute(update_ticket)
     await session.commit()
     stmt = select(TicketAlchemyModel).options(
@@ -118,7 +115,6 @@ async def add_to_existing_tickets(ticket: TicketAlchemyModel,
         ).where(TicketAlchemyModel.id == ticket.id)
     await session.execute(stmt)
     return ticket
-
 
 async def delete_ticket(ticket_id: int, session: AsyncSession) -> None:
     ticket: TicketAlchemyModel = await session.get(TicketAlchemyModel, ticket_id)

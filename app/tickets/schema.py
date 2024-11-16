@@ -10,7 +10,7 @@ class Ticket(BaseModel):
     id: int
     ticket_name: str
     message: List[str]
-    tags: List[Tag]
+    tags: List[Tag] | None = None
     amount: int
     acceptor: UserWithId
     acceptor_id: int
