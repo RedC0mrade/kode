@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 from app.tags.schema import Tag
 from app.users.schema import UserWithId
 from app.tags.tag_model_db import TagAlchemyModel, TicketTagAssociation
-from app.tickets.schema import CreateTicket, Ticket
+from app.tickets.schema import CreateTicket, Ticket, UpdateTicket
 from app.tickets.ticket_model_db import TicketAlchemyModel
 
 
@@ -51,19 +51,15 @@ async def create_ticket(ticket_in: CreateTicket,
                                 executor_id=user.id)
     session.add(ticket)
     await session.flush()
-    print(ticket_in.tags_id, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
     if ticket_in.tags_id:
         associations = [TicketTagAssociation(ticket_id=ticket.id, tag_id=tag) for tag in ticket_in.tags_id]
         session.add_all(associations)
         
     await session.commit()
     await session.refresh(ticket)
-    stmt = select(TicketAlchemyModel).options(
-        selectinload(TicketAlchemyModel.tags)
-        ).where(TicketAlchemyModel.id == ticket.id)
-    result: Result = await session.execute(stmt)
  
     return ticket
+
 
 async def ticker_done(ticket_id: int, 
                       acceptor: UserWithId, 
@@ -110,11 +106,9 @@ async def add_to_existing_tickets(ticket: TicketAlchemyModel,
 
     await session.execute(update_ticket)
     await session.commit()
-    stmt = select(TicketAlchemyModel).options(
-        selectinload(TicketAlchemyModel.tags)
-        ).where(TicketAlchemyModel.id == ticket.id)
-    await session.execute(stmt)
+    await session.refresh(ticket)
     return ticket
+
 
 async def delete_ticket(ticket_id: int, session: AsyncSession) -> None:
     ticket: TicketAlchemyModel = await session.get(TicketAlchemyModel, ticket_id)
@@ -126,3 +120,9 @@ async def get_ticket(ticket_id: int, session: AsyncSession) -> TicketAlchemyMode
     ticket: TicketAlchemyModel = await session.get(TicketAlchemyModel, ticket_id)
 
     return ticket
+
+
+async def update_ticket(ticket_id: int, 
+                        ticket_in: UpdateTicket, 
+                        session: AsyncSession) -> TicketAlchemyModel:
+    pass

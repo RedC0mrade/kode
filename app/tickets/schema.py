@@ -9,8 +9,8 @@ class Ticket(BaseModel):
 
     id: int
     ticket_name: str
-    message: List[str]
-    tags: List[Tag] | None = None
+    message: List[str | None]
+    tags: List[Tag | None]
     amount: int
     acceptor: UserWithId
     acceptor_id: int
@@ -26,4 +26,12 @@ class CreateTicket(BaseModel):
     message: str
     amount: int = Field(..., gt=0)
     acceptor_id: int
-    tags_id: list[int]
+    tags_id: list[int | None]
+
+
+class UpdateTicket(BaseModel):
+
+    ticket_name: str
+    message: str
+    amount: int = Field(..., gt=0)
+    tags_id: list[int | None]

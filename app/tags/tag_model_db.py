@@ -9,7 +9,6 @@ from app.constant import HEX_COLOR_REGEX
 
 if TYPE_CHECKING:
     from app.tickets.ticket_model_db import TicketAlchemyModel
-    from app.tags.tag_model_db import TagAlchemyModel
 
 class TagAlchemyModel(Base):
     __tablename__ = 'tags'
