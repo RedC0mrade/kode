@@ -7,7 +7,7 @@ from app.db_core.base import Base
 if TYPE_CHECKING:
     from app.users.user_model_db import UserAlchemyModel
     from app.tags.tag_model_db import TagAlchemyModel
-
+    from app.messages.message_model_db import MessageAlchemyModel
 
 class TicketAlchemyModel(Base):
     __tablename__ = "tickets"
@@ -16,7 +16,10 @@ class TicketAlchemyModel(Base):
     )
 
     ticket_name: Mapped[str] = mapped_column(String(100))
-    message: Mapped[List[str]] = mapped_column(JSON, default=list)
+    messages: Mapped[List["MessageAlchemyModel"]] = relationship("MessageAlchemyModel",
+                                                                 back_populates="ticket",
+                                                                 cascade="all, delete-orphan",
+                                                                 lazy="selectin")
     amount: Mapped[int] = mapped_column(Integer)
 
     executor_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
@@ -31,12 +34,9 @@ class TicketAlchemyModel(Base):
                                                         back_populates="to_take_tickets",
                                                         lazy="joined")
     
-    
-    # tags: Mapped[list["TicketTagAssociation"]] = relationship(back_populates="ticket",
-    #                                                           cascade="all, delete-orphan")
     tags: Mapped[list["TagAlchemyModel"]] = relationship(secondary="ticket_tag",
                                                        back_populates="tickets",
                                                        lazy="selectin")
     def __str__(self) -> str:
-        return f"id={self.id}, ticket_name={self.ticket_name}, message{self.message}"
+        return f"id={self.id}, ticket_name={self.ticket_name}"
     

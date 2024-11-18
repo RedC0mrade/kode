@@ -11,9 +11,9 @@ from app.tickets.ticket_model_db import TicketAlchemyModel
 class UserAlchemyModel(Base):
     __tablename__ = "users"
     
-    username: Mapped[str] = mapped_column(String(30), unique=True, nullable=False)
-    password: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
-    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    username: Mapped[str] = mapped_column(String(30), unique=True)
+    password: Mapped[bytes] = mapped_column(LargeBinary)
+    email: Mapped[str] = mapped_column(String(255), unique=True)
     
     to_do_tickets: Mapped[list["TicketAlchemyModel"]] = relationship(
         "TicketAlchemyModel",

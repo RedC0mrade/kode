@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Response
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.tickets.schema import Ticket, CreateTicket
+from app.tickets.schema import Ticket, CreateTicket, UpdateTicket
 from app.users.schema import UserWithId
 from app.authentication.actions import current_auth_user
 from app.db_core.engine import db_helper
@@ -66,3 +66,10 @@ async def add_to_existing_tickets(ticket_id: int,
 async def get_ticket(ticket_id: int,
                      session: AsyncSession = Depends(db_helper.session_dependency)):
     return await crud.get_ticket(ticket_id=ticket_id, session=session)
+
+
+@ticket_router.get("/update_ticket/{ticket_id}", response_model=Ticket)
+async def update_ticket(ticket_in: UpdateTicket,
+                        ticket_id: int,
+                        session: AsyncSession = Depends(db_helper.session_dependency)):
+    return await crud.update_ticket(ticket_id=ticket_id, ticket_in=ticket_in, session=session)

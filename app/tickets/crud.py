@@ -4,10 +4,10 @@ from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.tags.schema import Tag
 from app.users.schema import UserWithId
-from app.tags.tag_model_db import TagAlchemyModel, TicketTagAssociation
-from app.tickets.schema import CreateTicket, Ticket, UpdateTicket
+from app.tags.tag_model_db import TicketTagAssociation
+from app.messages.message_model_db import MessageAlchemyModel
+from app.tickets.schema import CreateTicket, UpdateTicket
 from app.tickets.ticket_model_db import TicketAlchemyModel
 
 
@@ -45,12 +45,17 @@ async def create_ticket(ticket_in: CreateTicket,
                                              session=session)
 
     ticket = TicketAlchemyModel(ticket_name=ticket_in.ticket_name,
-                                message=[ticket_in.message],
                                 amount=ticket_in.amount,
                                 acceptor_id=ticket_in.acceptor_id,
                                 executor_id=user.id)
     session.add(ticket)
     await session.flush()
+
+    if ticket_in.message:
+        message = MessageAlchemyModel(ticket_id=ticket.id, 
+                                      message=ticket_in.message)
+        session.add(message)
+
     if ticket_in.tags_id:
         associations = [TicketTagAssociation(ticket_id=ticket.id, tag_id=tag) for tag in ticket_in.tags_id]
         session.add_all(associations)

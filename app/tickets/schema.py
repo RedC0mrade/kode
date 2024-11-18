@@ -3,14 +3,15 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.tags.schema import Tag
 from app.users.schema import UserWithId
+from app.messages.schema import Message
 
 
 class Ticket(BaseModel):
 
     id: int
     ticket_name: str
-    message: List[str | None]
-    tags: List[Tag | None]
+    message: List[Message]
+    tags: List[Tag]
     amount: int
     acceptor: UserWithId
     acceptor_id: int
@@ -26,7 +27,7 @@ class CreateTicket(BaseModel):
     message: str
     amount: int = Field(..., gt=0)
     acceptor_id: int
-    tags_id: list[int | None]
+    tags_id: list[int]
 
 
 class UpdateTicket(BaseModel):

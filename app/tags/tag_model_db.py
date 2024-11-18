@@ -16,10 +16,9 @@ class TagAlchemyModel(Base):
 
     tag_name: Mapped[str] = mapped_column(String(30))
     tag_color: Mapped[str] = mapped_column(String(7))
-    # tickets: Mapped[list["TicketTagAssociation"]] = relationship(back_populates="tag", 
-    #                                                              cascade="all, delete-orphan")
+
     tickets: Mapped[list["TicketAlchemyModel"]] = relationship(secondary="ticket_tag",
-                                                             back_populates="tags")
+                                                               back_populates="tags")
 
     def __init__(self, tag_color: str, tag_name: str):
         if not re.match(HEX_COLOR_REGEX, tag_color):
@@ -34,5 +33,4 @@ class TicketTagAssociation(Base):
 
     ticket_id: Mapped[int] = mapped_column(ForeignKey("tickets.id"))
     tag_id: Mapped[int] = mapped_column(ForeignKey("tags.id"))
-    # ticket: Mapped["TicketAlchemyModel"] = relationship("TicketAlchemyModel", back_populates="tags")
-    # tag: Mapped["TagAlchemyModel"] = relationship("TagAlchemyModel", back_populates="tickets")
+

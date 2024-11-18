@@ -16,6 +16,7 @@ from app.db_core.base import Base
 from app.users import user_model_db
 from app.tickets import ticket_model_db
 from app.tags.tag_model_db import TagAlchemyModel, TicketTagAssociation
+from app.messages.message_model_db import MessageAlchemyModel
 from app.config import settings
 
 # this is the Alembic Config object, which provides
