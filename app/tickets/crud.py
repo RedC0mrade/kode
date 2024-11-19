@@ -62,6 +62,8 @@ async def create_ticket(ticket_in: CreateTicket,
         
     await session.commit()
     await session.refresh(ticket)
+
+    print(ticket.messages, )
  
     return ticket
 
@@ -90,14 +92,17 @@ async def add_to_existing_tickets(ticket: TicketAlchemyModel,
                                   ticket_in: CreateTicket,
                                   session: AsyncSession) -> TicketAlchemyModel:
     
-    ticket.message.append(ticket_in.message)
+    if ticket_in.message:
+        message = MessageAlchemyModel(ticket_id=ticket.id, 
+                                    message=ticket_in.message)
+        session.add(message)
+    
     update_amount: int = ticket.amount + ticket_in.amount
 
     update_ticket = (update(TicketAlchemyModel)
                      .where(TicketAlchemyModel.id==ticket.id)
                      .values({
                         "amount": update_amount, 
-                        "message": ticket.message
             })
         )
     stmt = select(TicketTagAssociation.tag_id).where(TicketTagAssociation.ticket_id==ticket.id)

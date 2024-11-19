@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.tags.schema import Tag
@@ -10,7 +10,7 @@ class Ticket(BaseModel):
 
     id: int
     ticket_name: str
-    message: List[Message]
+    messages: Optional[List[Message]] = None
     tags: List[Tag]
     amount: int
     acceptor: UserWithId
@@ -35,4 +35,4 @@ class UpdateTicket(BaseModel):
     ticket_name: str
     message: str
     amount: int = Field(..., gt=0)
-    tags_id: list[int | None]
+    tags_id: list[int]

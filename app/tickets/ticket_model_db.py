@@ -16,7 +16,7 @@ class TicketAlchemyModel(Base):
     )
 
     ticket_name: Mapped[str] = mapped_column(String(100))
-    messages: Mapped[List["MessageAlchemyModel"]] = relationship("MessageAlchemyModel",
+    messages: Mapped[list["MessageAlchemyModel"]] = relationship("MessageAlchemyModel",
                                                                  back_populates="ticket",
                                                                  cascade="all, delete-orphan",
                                                                  lazy="selectin")
