@@ -1,10 +1,12 @@
-from typing import List, Optional
+from typing import Annotated, List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.tags.schema import Tag
 from app.users.schema import UserWithId
 from app.messages.schema import Message
 
+
+PositiveInt = Annotated[int, Field(gt=0)]
 
 class Ticket(BaseModel):
 
@@ -26,8 +28,8 @@ class CreateTicket(BaseModel):
     ticket_name: str
     message: str
     amount: int = Field(..., gt=0)
-    acceptor_id: int
-    tags_id: list[int]
+    acceptor_id: PositiveInt
+    tags_id: list[PositiveInt]
 
 
 class UpdateTicket(BaseModel):
@@ -35,4 +37,4 @@ class UpdateTicket(BaseModel):
     ticket_name: str
     message: str
     amount: int = Field(..., gt=0)
-    tags_id: list[int]
+    tags_id: list[PositiveInt]
