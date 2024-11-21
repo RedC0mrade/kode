@@ -9,7 +9,7 @@ from app.tags.tag_model_db import TagAlchemyModel, TicketTagAssociation
 from app.messages.message_model_db import MessageAlchemyModel
 from app.tickets.schema import CreateTicket, UpdateTicket
 from app.tickets.ticket_model_db import TicketAlchemyModel
-from app.validators.tickets import validate_tags_in_base
+from app.validators.tags import validate_tags_in_base
 
 
 def add_message(message: str, ticket_id: int, session: AsyncSession):
@@ -117,18 +117,23 @@ async def add_to_existing_tickets(ticket: TicketAlchemyModel,
 
 
 async def delete_ticket(ticket_id: int, session: AsyncSession) -> None:
-    ticket: TicketAlchemyModel = await session.get(TicketAlchemyModel, ticket_id)
+    ticket: TicketAlchemyModel = get_ticket(ticket_id=ticket_id, session=session)
     await session.delete(ticket)
     await session.commit()
 
 
 async def get_ticket(ticket_id: int, session: AsyncSession) -> TicketAlchemyModel:
-    ticket: TicketAlchemyModel = await session.get(TicketAlchemyModel, ticket_id)
-
+    ticket: TicketAlchemyModel | None  = await session.get(TicketAlchemyModel, ticket_id)
+    if not ticket:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Ticket whits id {ticket_id} not found")
     return ticket
 
 
 async def update_ticket(ticket_id: int, 
                         ticket_in: UpdateTicket, 
                         session: AsyncSession) -> TicketAlchemyModel:
-    pass
+    
+    ticket: TicketAlchemyModel = get_ticket(ticket_id=ticket_id, session=session)
+    if ticket.messages:
+        stmt = delete(MessageAlchemyModel).

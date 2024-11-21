@@ -70,8 +70,7 @@ async def delete_user(
     user_id: int, 
     session: AsyncSession = Depends(db_helper.session_dependency)
     ):
-    try: 
-        await crud.delete_user(session=session, user_id=user_id)
-    except:
-        return Response(status_code=404, content="user not found")
+    
+    return await crud.delete_user(session=session, user_id=user_id)
+
     

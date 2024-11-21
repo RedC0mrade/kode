@@ -2,14 +2,16 @@ from fastapi import HTTPException, status
 from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.tags.tag_model_db import TagAlchemyModel
+from app.tickets.ticket_model_db import TicketAlchemyModel
 
 
-async def validate_tags_in_base(tags: list | set, session: AsyncSession):
-    stmt = select(TagAlchemyModel.id).where(TagAlchemyModel.id.in_(tags))
-    result: Result = await session.execute(stmt)
-    tags_in_base = result.scalars().all()
+async def validate_ticket(ticket_id: int, session: AsyncSession) -> TicketAlchemyModel:
+    stmt = select(TicketAlchemyModel).where(TicketAlchemyModel.id==ticket_id)
+    result: Result = session.execute(stmt)
+    ticket = result.scalar_one_or_none()
+
+    if not ticket:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"ticket whis {ticket_id} not found")
     
-    mising_tags = [tag for tag in tags if tag not in tags_in_base]
-    if mising_tags:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Wrong tag id: {", ".join(map(str, mising_tags))}")
+    return ticket

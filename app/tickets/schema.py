@@ -34,7 +34,6 @@ class CreateTicket(BaseModel):
 
 class UpdateTicket(BaseModel):
 
-    ticket_name: str
     message: str
     amount: int = Field(..., gt=0)
     tags_id: list[PositiveInt]
