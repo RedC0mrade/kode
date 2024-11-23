@@ -71,5 +71,6 @@ async def get_ticket(ticket_id: int,
 @ticket_router.get("/update_ticket/{ticket_id}", response_model=Ticket)
 async def update_ticket(ticket_in: UpdateTicket,
                         ticket_id: int,
+                        acceptor: UserWithId = Depends(current_auth_user),
                         session: AsyncSession = Depends(db_helper.session_dependency)):
     return await crud.update_ticket(ticket_id=ticket_id, ticket_in=ticket_in, session=session)

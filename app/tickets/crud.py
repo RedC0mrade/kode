@@ -4,6 +4,7 @@ from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, status
 
+from app.messages.crud import delete_all_messages
 from app.users.schema import UserWithId
 from app.tags.tag_model_db import TagAlchemyModel, TicketTagAssociation
 from app.messages.message_model_db import MessageAlchemyModel
@@ -131,9 +132,11 @@ async def get_ticket(ticket_id: int, session: AsyncSession) -> TicketAlchemyMode
 
 
 async def update_ticket(ticket_id: int, 
-                        ticket_in: UpdateTicket, 
+                        ticket_in: UpdateTicket,
+                        acceptor: UserWithId, 
                         session: AsyncSession) -> TicketAlchemyModel:
     
-    ticket: TicketAlchemyModel = get_ticket(ticket_id=ticket_id, session=session)
-    if ticket.messages:
-        stmt = delete(MessageAlchemyModel).
+    
+    ticket: TicketAlchemyModel = await delete_all_messages(ticket_id=ticket_id,
+                                                           user=acceptor,
+                                                           session=session)
