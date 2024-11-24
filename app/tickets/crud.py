@@ -13,9 +13,14 @@ from app.tickets.ticket_model_db import TicketAlchemyModel
 from app.validators.tags import validate_tags_in_base
 
 
-def add_message(message: str, ticket_id: int, session: AsyncSession):
-    if message:
-        session.add(MessageAlchemyModel(message=message, ticket_id=ticket_id))
+def add_message(text: str,
+                ticket_id: int,
+                user: UserWithId,
+                session: AsyncSession):
+    
+!!!!!!!!!!!!!!!!!!!!
+    if text:
+        session.add(MessageAlchemyModel(message=text, ticket_id=ticket_id))
 
 
 async def get_my_tasks(user: UserWithId, 
