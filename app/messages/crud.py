@@ -39,7 +39,7 @@ async def delete_all_messages(ticket_id: int,
     ticket: TicketAlchemyModel = await validate_ticket(ticket_id=ticket_id, session=session)
     if ticket.executor_id != user.id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail=f"You can't delete messages in ticket {ticket_id} id's")
+                            detail=f"You can't delete messages {ticket_id} id's")
     ticket.messages.clear()
     await session.commit()
     return ticket

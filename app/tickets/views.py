@@ -19,11 +19,12 @@ async def create_ticket(ticket_in: CreateTicket,
 
 
 @ticket_router.delete("/{ticket_id}", status_code=204)
-async def delete_ticket(ticket_id: int, 
+async def delete_ticket(ticket_id: int,
+                        user: UserWithId = Depends(current_auth_user),
                         session: AsyncSession = Depends(db_helper.session_dependency)):
     
     try: 
-        await crud.delete_ticket(ticket_id=ticket_id, session=session)
+        await crud.delete_ticket(ticket_id=ticket_id, user=user, session=session)
     except:
         return Response(status_code=404, content="Ticket not found")
     
@@ -64,8 +65,9 @@ async def add_to_existing_tickets(ticket_id: int,
 
 @ticket_router.get("/ticket", response_model=Ticket)
 async def get_ticket(ticket_id: int,
+                     user: UserWithId = Depends(current_auth_user),
                      session: AsyncSession = Depends(db_helper.session_dependency)):
-    return await crud.get_ticket(ticket_id=ticket_id, session=session)
+    return await crud.get_ticket(ticket_id=ticket_id, user=user, session=session)
 
 
 @ticket_router.get("/update_ticket/{ticket_id}", response_model=Ticket)
@@ -73,4 +75,4 @@ async def update_ticket(ticket_in: UpdateTicket,
                         ticket_id: int,
                         acceptor: UserWithId = Depends(current_auth_user),
                         session: AsyncSession = Depends(db_helper.session_dependency)):
-    return await crud.update_ticket(ticket_id=ticket_id, ticket_in=ticket_in, session=session)
+    return await crud.update_ticket(ticket_id=ticket_id, acceptor=acceptor, ticket_in=ticket_in, session=session)

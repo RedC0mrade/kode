@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.users.user_model_db import UserAlchemyModel
 from app.users.schema import User, UserWithId, UserPatch
 from app.authentication.password_utils import hash_password
+from app.validators.users import validate_user, validete_unauthenticated_user
 
 
 async def get_users(session: AsyncSession) -> List[UserAlchemyModel]:
@@ -19,11 +20,13 @@ async def get_users(session: AsyncSession) -> List[UserAlchemyModel]:
 
 async def get_user(session: AsyncSession, user_id: int) -> UserAlchemyModel | None:
     
-    return await session.get(UserAlchemyModel, user_id)
+    return await validate_user(user_id=user_id, session=session)
 
 
 async def create_user(session: AsyncSession, user_in: UserWithId) -> UserAlchemyModel:
 
+    await validete_unauthenticated_user()
+    
     user_in.password = hash_password(user_in.password)
     new_user = UserAlchemyModel(**user_in.model_dump())
     session.add(new_user)

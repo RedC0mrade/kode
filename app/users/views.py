@@ -5,6 +5,7 @@ from app.users import crud
 from app.users.schema import User, UserWithId, UserPatch
 from app.db_core.engine import db_helper
 from app.authentication.actions import current_auth_user
+from app.validators.users import validate_user
 
 
 router_user = APIRouter(prefix="/user", tags=["user"])
@@ -24,16 +25,12 @@ def get_me(user: User = Depends(current_auth_user)):
 
 @router_user.get("/{user_id}", response_model=UserWithId)
 async def get_user(
-    user_id: int, 
+    user_id: int,
+    user: User = Depends(current_auth_user),
     session: AsyncSession = Depends(db_helper.session_dependency),
     ):
-    user = await crud.get_user(session=session, user_id=user_id)
-    if user:
-        return user
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"User with {user_id} id's, not found"
-        )
+    
+    return await validate_user(user_id=user_id, session=session)
 
 
 @router_user.post("/", response_model=UserWithId, status_code=201)

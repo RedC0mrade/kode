@@ -6,21 +6,12 @@ from fastapi import HTTPException, status
 
 from app.messages.crud import delete_all_messages
 from app.users.schema import UserWithId
-from app.tags.tag_model_db import TagAlchemyModel, TicketTagAssociation
-from app.messages.message_model_db import MessageAlchemyModel
+from app.tags.tag_model_db import TicketTagAssociation
+from app.messages.crud import add_message
 from app.tickets.schema import CreateTicket, UpdateTicket
 from app.tickets.ticket_model_db import TicketAlchemyModel
 from app.validators.tags import validate_tags_in_base
-
-
-def add_message(text: str,
-                ticket_id: int,
-                user: UserWithId,
-                session: AsyncSession):
-    
-!!!!!!!!!!!!!!!!!!!!
-    if text:
-        session.add(MessageAlchemyModel(message=text, ticket_id=ticket_id))
+from app.validators.tickets import validate_ticket
 
 
 async def get_my_tasks(user: UserWithId, 
@@ -42,6 +33,9 @@ async def get_my_tickets(user: UserWithId,
 async def create_ticket(ticket_in: CreateTicket,
                         user: UserWithId,
                         session: AsyncSession) -> TicketAlchemyModel:
+    if user.id == ticket_in.acceptor_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="You can't create ticket to your self")
     
     check_stmt = select(TicketAlchemyModel).where(and_(
         TicketAlchemyModel.ticket_name==ticket_in.ticket_name,
@@ -50,9 +44,10 @@ async def create_ticket(ticket_in: CreateTicket,
         ))
     result: Result = await session.execute(check_stmt)
     check_ticket: TicketAlchemyModel = result.scalar_one_or_none()
-    
+
     if check_ticket:
         return await add_to_existing_tickets(ticket=check_ticket,
+                                             user=user,
                                              ticket_in=ticket_in,
                                              session=session)
 
@@ -63,7 +58,7 @@ async def create_ticket(ticket_in: CreateTicket,
     session.add(ticket)
     await session.flush()
 
-    add_message(message=ticket_in.message, ticket_id=ticket.id, session=session)
+    await add_message(message=ticket_in.message, user=user, ticket_id=ticket.id, session=session)
 
 
     if ticket_in.tags_id:
@@ -99,10 +94,11 @@ async def ticker_done(ticket_id: int,
     
     
 async def add_to_existing_tickets(ticket: TicketAlchemyModel,
+                                  user: UserWithId,
                                   ticket_in: CreateTicket,
                                   session: AsyncSession) -> TicketAlchemyModel:
     
-    add_message(message=ticket_in.message, ticket_id=ticket.id, session=session)
+    add_message(message=ticket_in.message, user=user, ticket_id=ticket.id, session=session)
     
     ticket.amount += ticket_in.amount
 
@@ -122,17 +118,18 @@ async def add_to_existing_tickets(ticket: TicketAlchemyModel,
     return ticket
 
 
-async def delete_ticket(ticket_id: int, session: AsyncSession) -> None:
-    ticket: TicketAlchemyModel = get_ticket(ticket_id=ticket_id, session=session)
+async def delete_ticket(ticket_id: int,
+                        user: UserWithId,
+                        session: AsyncSession) -> None:
+    ticket: TicketAlchemyModel = validate_ticket(ticket_id=ticket_id, user=user, session=session)
     await session.delete(ticket)
     await session.commit()
 
 
-async def get_ticket(ticket_id: int, session: AsyncSession) -> TicketAlchemyModel:
-    ticket: TicketAlchemyModel | None  = await session.get(TicketAlchemyModel, ticket_id)
-    if not ticket:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"Ticket whits id {ticket_id} not found")
+async def get_ticket(ticket_id: int,
+                     user: UserWithId,
+                     session: AsyncSession) -> TicketAlchemyModel:
+    ticket: TicketAlchemyModel = validate_ticket(ticket_id=ticket_id, user=user, session=session)
     return ticket
 
 
