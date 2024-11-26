@@ -41,7 +41,7 @@ async def current_auth_user(
         token: str = Depends(oauth2_scheme)
         ) -> User:
     try:
-        payload = decoded_token(token=token)
+        payload: dict = decoded_token(token=token)
     except InvalidTokenError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Invalid Token")

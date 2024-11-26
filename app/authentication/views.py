@@ -26,7 +26,6 @@ def user_login(user: User = Depends(user_validate)) -> Token:
 
 
 def get_current_token_payload(token: str = Depends(oauth2_scheme)) -> dict:
-    print(token)
     try:
         payload = decoded_token(token=token)
     except InvalidTokenError as e:

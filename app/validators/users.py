@@ -15,9 +15,3 @@ async def validate_user(user_id: int,
                             detail=f"User with id {user_id} not found")
     
     return searched_user
-
-
-async def validete_unauthenticated_user(user: User = Depends(current_auth_user)) -> None:
-    print(user)
-    if user:
-        raise HTTPException(status_code=403, detail="You are already authenticated.")
