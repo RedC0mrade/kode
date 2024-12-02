@@ -16,9 +16,10 @@ async def validate_message(message_id: int,
     stmt = (
         select(MessageAlchemyModel)
         .where(MessageAlchemyModel.id==message_id)
-        .options(selectinload(MessageAlchemyModel.ticket).selectinload(TicketAlchemyModel.executor)))
+        .options(selectinload(MessageAlchemyModel.ticket)
+                 .selectinload(TicketAlchemyModel.executor)))
     result: Result = await session.execute(stmt)
-    message = result.scalar_one_or_none()
+    message: MessageAlchemyModel = result.scalar_one_or_none()
 
     if not message:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
