@@ -34,6 +34,6 @@ class CreateTicket(BaseModel):
 
 class UpdateTicket(BaseModel):
 
-    message: str
-    amount: int = Field(..., gt=0)
-    tags_id: list[PositiveInt]
+    message: str | None = None
+    amount: PositiveInt | None = None
+    tags_id: list[PositiveInt] | None = None
