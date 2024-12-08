@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request, Response, status, Depends
+from fastapi import APIRouter, Response, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.users import crud
@@ -12,22 +12,12 @@ router_user = APIRouter(prefix="/user", tags=["user"])
 router_users = APIRouter(prefix="/users", tags=["users"])
 
 @router_users.get("/", response_model=list[UserWithId])
-async def get_users(response: Response, request: Request,
-    session: AsyncSession = Depends(db_helper.session_dependency),
-    ):
-    authorization = request.headers.get("Authorization")
-    rp = response.headers
-    print(rp, "################")
-    # print(authorization,  "!!!!!!!!!!!!!!!!!")
-    # print(request.headers, "@@@@@@@@@@@@@@@")
+async def get_users(session: AsyncSession = Depends(db_helper.session_dependency)):
     return await crud.get_users(session=session)
 
 
 @router_user.get("/me", response_model=UserWithId)
-def get_me(request: Request, user: User = Depends(current_auth_user)):
-    authorization = request.headers.get("Authorization")
-    print(authorization,  "!!!!!!!!!!!!!!!!!")
-    print(request.headers, "@@@@@@@@@@@@@@@")
+def get_me(user: User = Depends(current_auth_user)):
     return user
 
 

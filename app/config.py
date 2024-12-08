@@ -3,11 +3,11 @@ from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).parent.parent
-DB_PATH = BASE_DIR / "JuliaBars.sqlite3"
+# DB_PATH = BASE_DIR / "JuliaBars.sqlite3"
 
 class Settings(BaseSettings):
     
-    url: str = f"sqlite+aiosqlite:///{DB_PATH}"
+    url: str = "postgresql+asyncpg://KodeUser:KodePassword@db:5432/KodeDB"
     
         
     private_key: Path = BASE_DIR / "app" / "authentication" / "certs" / "jwt-private.pem"    

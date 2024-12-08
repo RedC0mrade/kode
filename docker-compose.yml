@@ -1,18 +1,49 @@
-services:
-  db:
-    image: postgres
-    environment:
-      POSTGRES_DB: KodeDB
-      POSTGRES_USER: KodeUser
-      POSTGRES_PASSWORD: KodePassword
-    ports:
-      - "5432:5432"
+# services:
+#   db:
+#     image: postgres
+#     environment:
+#       POSTGRES_DB: KodeDB
+#       POSTGRES_USER: KodeUser
+#       POSTGRES_PASSWORD: KodePassword
+#     ports:
+#       - "5432:5432"
 
-  web:
+#   web:
+#     build: .
+#     volumes:
+#       - .:/app
+#     ports:
+#       - "8000:8000"
+#     depends_on:
+#       - db
+# version: '3.9'
+
+services:
+  app:
     build: .
-    volumes:
-      - .:/app
+    container_name: fastapi_app
     ports:
       - "8000:8000"
     depends_on:
       - db
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://KodeUser:KodePassword@db:5432/KodeDB
+    volumes:
+      - .:/app
+    command: >
+      uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  db:
+    image: postgres:latest
+    container_name: postgresKode
+    environment:
+      POSTGRES_USER: KodeUser
+      POSTGRES_PASSWORD: KodePassword
+      POSTGRES_DB: KodeDB
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
