@@ -65,4 +65,8 @@ async def update_message(message_id: int,
                          session: AsyncSession,
                          user: UserWithId):
     
-    ticket: TicketAlchemyModel = await delete_all_messages()
+    message: MessageAlchemyModel = await validate_message(message_id=message_id, user=user, session=session)
+    message.message = message_text
+    session.add(message)
+    await session.commit()
+    return message

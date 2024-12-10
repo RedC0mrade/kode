@@ -135,10 +135,21 @@ async def get_ticket(ticket_id: int,
 
 async def update_ticket(ticket_id: int, 
                         ticket_in: UpdateTicket,
-                        acceptor: UserWithId, 
+                        executor: UserWithId, 
                         session: AsyncSession) -> TicketAlchemyModel:
     
+    ticket: TicketAlchemyModel = await validate_ticket(ticket_id=ticket_id, user=executor, session=session)
     
-    ticket: TicketAlchemyModel = await delete_all_messages(ticket_id=ticket_id,
-                                                           user=acceptor,
-                                                           session=session)
+    if ticket_in.message:
+        await delete_all_messages(ticket_id=ticket_id, user=executor, session=session)
+
+        await add_message(ticket_id=ticket_id,
+                          message=ticket_in.message,
+                          user=executor,
+                          session=session)
+        
+    if ticket_in.amount and ticket_in.amount > ticket.amount:
+        ticket.amount = ticket_in.amount
+
+    if ticket_in.tags_id:
+        

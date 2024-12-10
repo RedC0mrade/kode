@@ -36,7 +36,7 @@ async def delete_all_messages(ticket_id: int,
     return await crud.delete_all_messages(ticket_id=ticket_id, user=user, session=session)
 
 
-@messages_router.post("/{message_id}", response_model=Message)
+@messages_router.post("/", response_model=Message)
 async def add_message(ticket_id: int,
                       message: str,
                       user: User = Depends(current_auth_user),
@@ -46,3 +46,14 @@ async def add_message(ticket_id: int,
                                   message=message,
                                   user=user,
                                   session=session)
+
+@messages_router.post("/update_message/{message_id}", response_model=Message)
+async def update_message(message_id:int,
+                         message_text: str,
+                         user: User = Depends(current_auth_user),
+                         session: AsyncSession = Depends(db_helper.session_dependency)):
+    
+    return await crud.update_message(message_id=message_id, 
+                                     message_text=message_text,
+                                     user=user,
+                                     session=session)
