@@ -31,6 +31,10 @@ async def delete_tag(tag_id: int, session: AsyncSession) -> None:
     await session.commit()
 
 
+async def create_associations(taags_ids: list,
+                              ticket_id: int,
+                              session: AsyncSession):
+    
 async def delete_association(association_id: int, session: AsyncSession) -> None:
     association: TicketTagAssociation = await validate_assosiation(
         assosiation_id=association_id, 

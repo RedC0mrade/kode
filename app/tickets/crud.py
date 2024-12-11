@@ -153,3 +153,4 @@ async def update_ticket(ticket_id: int,
 
     if ticket_in.tags_id:
         
+        
