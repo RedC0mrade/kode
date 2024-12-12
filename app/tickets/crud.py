@@ -151,6 +151,6 @@ async def update_ticket(ticket_id: int,
     if ticket_in.amount and ticket_in.amount > ticket.amount:
         ticket.amount = ticket_in.amount
 
-    if ticket_in.tags_id:
+    # if ticket_in.tags_id:
         
         
