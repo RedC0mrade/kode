@@ -1,10 +1,14 @@
+from typing import List
 from fastapi import HTTPException
-from sqlalchemy import Result, delete, select
+from sqlalchemy import Result, delete, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.tags.schema import CreateTag, Tag
 from app.tags.tag_model_db import TagAlchemyModel, TicketTagAssociation
-from app.validators.tags import validate_assosiation, validate_tag
+from app.tickets.ticket_model_db import TicketAlchemyModel
+from app.users.schema import UserWithId
+from app.validators.tags import validate_assosiation, validate_tag, validate_tags_in_base
+from app.validators.tickets import validate_ticket
 
 
 async def get_all_tags(session: AsyncSession) -> list[TagAlchemyModel]:
@@ -29,6 +33,22 @@ async def delete_tag(tag_id: int, session: AsyncSession) -> None:
         session=session)
     await session.delete(tag)
     await session.commit()
+
+
+async def create_associations(tags_ids: List[int],
+                              user: UserWithId,
+                              ticket_id: int,
+                              session: AsyncSession) -> List[TicketTagAssociation]:
+    
+    ticket: TicketAlchemyModel = await validate_ticket(ticket_id=ticket_id, user=user, session=session)
+    await validate_tags_in_base(tags=tags_ids, session=session)
+    if ticket.tags:
+        await delete_all_associatons_in_ticket(ticket_id=ticket_id, session=session)
+    association_data = [{"tag_id": tag_id, "ticket_id": ticket_id} for tag_id in tags_ids]
+    stmt = insert(TicketTagAssociation).values(association_data)
+    await session.execute(stmt)
+    await session.commit()
+    return association_data
 
 
 async def delete_association(association_id: int, session: AsyncSession) -> None:

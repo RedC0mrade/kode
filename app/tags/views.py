@@ -2,9 +2,11 @@ from typing import List
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.tags.schema import CreateTag, Tag
+from app.authentication.actions import current_auth_user
+from app.tags.schema import Association, CreateTag, Tag
 from app.db_core.engine import db_helper
 from app.tags import crud
+from app.users.schema import UserWithId
 
 
 tag_router = APIRouter(prefix="/tag_router", tags=["tags"])
@@ -39,3 +41,11 @@ async def delete_association(association_id: int,
         await crud.delete_association(association_id=association_id, session=session)
     except:
         return Response(status_code=404, content="association not found")
+
+
+@association_router.post("/{ticket_id}", response_model=list[Association])
+async def create_associations(tags_ids: List[int],
+                              ticket_id: int,
+                              user: UserWithId = Depends(current_auth_user),
+                              session: AsyncSession = Depends(db_helper.session_dependency)):
+    return await crud.create_associations(tags_ids=tags_ids, ticket_id=ticket_id, user=user, session=session)
