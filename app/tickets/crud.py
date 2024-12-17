@@ -152,4 +152,4 @@ async def update_ticket(ticket_id: int,
         ticket.amount = ticket_in.amount
 
     if ticket_in.tags_id:
-        
+        pass
